@@ -1,0 +1,123 @@
+## 💡 Description du Projet : SkillBridge
+
+SkillBridge est une application web full-stack destinée à faciliter l’échange de compétences entre utilisateurs sans aucune transaction monétaire.  
+Chaque membre peut partager une compétence qu’il maîtrise (comme la guitare, la programmation ou les langues) et, en parallèle, rechercher d’autres talents proposés par la communauté.  
+Le fonctionnement repose sur un système de crédits permettant d’assurer des échanges équilibrés, fiables et transparents entre les utilisateurs.
+Cette plateforme favorise le partage, l’apprentissage et la collaboration entre des personnes ayant des compétences variées.
+
+## 🎯 Objectifs du Projet
+
+- 🌱 **Créer un espace d’apprentissage collaboratif**, accessible à tous et sans utilisation d’argent réel.  
+- 🔄 **Proposer un système d’échanges équitables basé sur des crédits**, garantissant des interactions justes entre les utilisateurs.  
+- 🧭 **Offrir une expérience utilisateur fluide, intuitive, responsive et totalement sécurisée**, adaptée à tous les appareils.  
+- 📊 **Mettre à disposition un tableau de bord complet**, regroupant les crédits, l’historique des échanges, les messages et les compétences publiées.  
+- 🛠️ **Permettre aux administrateurs de gérer efficacement la plateforme** : utilisateurs, compétences, échanges et état global du système.
+
+## 👥 Public Cible
+
+- Étudiants souhaitant échanger des connaissances de manière accessible.
+- Professionnels voulant enseigner ou apprendre de nouvelles compétences.
+- Passionnés dans divers domaines (musique, langues, informatique, sport, art…).
+- Toute personne souhaitant apprendre ou partager son expertise gratuitement.
+
+## 🧱 Architecture Technique
+--> 🔧 Backend — Laravel
+    - Framework Laravel (PHP)
+    - ORM Eloquent pour la gestion de la base de données
+    - Authentification sécurisée via Laravel Sanctum
+    - Gestion des rôles et permissions avec Laratrust
+    - Architecture REST pour l’API
+
+--> 🎨 Frontend — React
+    - React.js en Single Page Application
+    - Gestion d’état via Redux Toolkit ou Zustand
+    - Interfaces construites avec Tailwind CSS ou Material UI
+    - Consommation de l’API via Axios
+
+--> 🗄️ Base de données
+    - MySQL
+    - Modélisation relationnelle adaptée à la gestion des compétences, profils, échanges et messages
+
+--> 🐳 Déploiement & DevOps
+    - Conteneurisation complète via Docker (backend, frontend, base de données)
+    - Intégration continue via GitHub Actions
+    - Déploiement sur Render, Railway, Netlify ou Vercel
+    - Utilisation d’un repository GitHub pour la gestion du code source et du versionnement
+
+## ✨ Fonctionnalités Détailées
+--> 👤 Gestion des utilisateurs
+    - Création de compte, connexion, mise à jour du profil
+    - Rôles définis : utilisateur, administrateur
+    - Système de permissions basé sur Laratrust
+
+--> 📚 Gestion des compétences
+    - Publication d’une compétence avec description et catégories
+    - Exploration des compétences publiées par la communauté
+    - Filtres et recherche avancée
+
+--> 🔁 Système d’échanges avec crédits
+    - Chaque utilisateur possède un solde de crédits
+    - Acceptation et demande d’échanges entre membres
+    - Mise à jour automatique du solde après chaque échange
+
+--> 💬 Chat en temps réel
+    - Système de messagerie permettant la communication entre utilisateurs
+    - Notifications lors de nouveaux messages ou demandes d’échange
+
+--> 📊 Tableau de bord utilisateur
+    - Suivi des crédits
+    - Historique des échanges
+    - Activité récente
+    - Statistiques personnelles
+
+--> 🛠 Interface d’administration
+    - Gestion des utilisateurs
+    - Gestion des compétences
+    - Modération des échanges
+    - Accès aux statistiques globales
+
+## 🧩 Conception & Documentation
+
+Le projet comprend plusieurs livrables essentiels pour garantir une structure robuste et professionnelle.
+
+--> 📐 UML :
+
+1. Diagramme des cas d’utilisation
+2. Diagramme de classes
+
+--> 🎨 Maquettage : Design complet réalisé sur Figma
+
+--> 📘 Documentation API
+
+1. Documentation détaillée de l’ensemble des routes de l’API
+2. Structure des réponses
+   
+--> 🗂 Cahier des charges
+
+1. Contexte général
+2. Analyse du besoin
+3. Objectifs du projet
+4. Fonctionnalités
+5. Architecture logicielle
+
+--> 🗓️ Planification du projet avec Jira
+
+1. Organisation et gestion des tâches via Jira
+2. Répartition par sprints
+3. Suivi du développement
+
+## 📦 Deliverables (Liens)
+
+1. Cahier des charges : https://docs.google.com/document/d/1GJmJlgPByMii3xBBhvE7MmQdXmkawIPvA5mkfWOSg3Q/edit?tab=t.0#heading=h.3knb4dh0h6rk
+2. Planification avec Jira : 
+3. Diagrammes UML :
+   - Diagramme des cas d’utilisation :
+   - Diagramme de classes :
+4. Maquettes Figma :
+5. Documentation API :
+6. Application déployée :
+
+## 👥 Équipe
+
+Salma ELQADI — Développeuse Fullstack / Chef de Projet
+Salma Harda — Superviseure Académique
