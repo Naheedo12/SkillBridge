@@ -108,8 +108,8 @@ Le projet comprend plusieurs livrables essentiels pour garantir une structure ro
 
 ## **📦 Deliverables (Liens)**
 
-1. Cahier des charges : https://docs.google.com/document/d/1GJmJlgPByMii3xBBhvE7MmQdXmkawIPvA5mkfWOSg3Q/edit?tab=t.0#heading=h.3knb4dh0h6rk
-2. Planification avec Jira : 
+1. Cahier des charges : [![Google Docs](https://img.shields.io/badge/📋_Cahier_des_Charges-View-blue?style=for-the-badge&logo=googledocs)](https://docs.google.com/document/d/1GJmJlgPByMii3xBBhvE7MmQdXmkawIPvA5mkfWOSg3Q/edit?tab=t.0#heading=h.3knb4dh0h6rk)
+2. Planification avec Jira :
 3. Diagrammes UML :
    - Diagramme des cas d’utilisation :
    - Diagramme de classes :
@@ -121,6 +121,7 @@ Le projet comprend plusieurs livrables essentiels pour garantir une structure ro
 
 **Salma ELQADI** — Développeuse Fullstack / Chef de Projet<br>
 **Salma Harda** — Superviseure Académique
+
 
 
 
