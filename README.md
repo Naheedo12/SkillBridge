@@ -21,12 +21,12 @@ Cette plateforme favorise le partage, l’apprentissage et la collaboration entr
 - Toute personne souhaitant apprendre ou partager son expertise gratuitement.
 
 ## 🧱 Architecture Technique
---> 🔧 Backend — Laravel
-    - Framework Laravel (PHP)
-    - ORM Eloquent pour la gestion de la base de données
-    - Authentification sécurisée via Laravel Sanctum
-    - Gestion des rôles et permissions avec Laratrust
-    - Architecture REST pour l’API
+--> 🔧 Backend — Laravel<br>
+    - Framework Laravel (PHP)<br>
+    - ORM Eloquent pour la gestion de la base de données<br>
+    - Authentification sécurisée via Laravel Sanctum<br>
+    - Gestion des rôles et permissions avec Laratrust<br>
+    - Architecture REST pour l’API<br>
 
 --> 🎨 Frontend — React
     - React.js en Single Page Application
@@ -121,3 +121,4 @@ Le projet comprend plusieurs livrables essentiels pour garantir une structure ro
 
 Salma ELQADI — Développeuse Fullstack / Chef de Projet
 Salma Harda — Superviseure Académique
+
