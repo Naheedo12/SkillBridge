@@ -23,58 +23,58 @@ Cette plateforme favorise le partage, l’apprentissage et la collaboration entr
 ## 🧱 Architecture Technique
 --> **🔧 Backend — Laravel**<br>
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Framework Laravel (PHP)<br>
-    &nbsp;&nbsp;&nbsp;&nbsp;- ORM Eloquent pour la gestion de la base de données<br>
-    &nbsp;&nbsp;&nbsp;&nbsp;- Authentification sécurisée via Laravel Sanctum<br>
-    &nbsp;&nbsp;&nbsp;&nbsp;- Gestion des rôles et permissions avec Laratrust<br>
-    &nbsp;&nbsp;&nbsp;&nbsp;- Architecture REST pour l’API<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- ORM Eloquent pour la gestion de la base de données<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Authentification sécurisée via Laravel Sanctum<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Gestion des rôles et permissions avec Laratrust<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Architecture REST pour l’API<br>
 
 --> **🎨 Frontend — React**<br>
-    - React.js en Single Page Application<br>
-    - Gestion d’état via Redux Toolkit<br>
-    - Interfaces construites avec Tailwind CSS<br>
-    - Consommation de l’API via Axios<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- React.js en Single Page Application<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Gestion d’état via Redux Toolkit<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Interfaces construites avec Tailwind CSS<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Consommation de l’API via Axios<br>
 
 --> **🗄️ Base de données**<br>
-    - MySQL<br>
-    - Modélisation relationnelle adaptée à la gestion des compétences, profils, échanges et messages<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- MySQL<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Modélisation relationnelle adaptée à la gestion des compétences, profils, échanges et messages<br>
 
 --> **🐳 Déploiement & DevOps**<br>
-    - Conteneurisation complète via Docker (backend, frontend, base de données)<br>
-    - Intégration continue via GitHub Actions<br>
-    - Déploiement sur Render, Railway, Netlify ou Vercel<br>
-    - Utilisation d’un repository GitHub pour la gestion du code source et du versionnement<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Conteneurisation complète via Docker (backend, frontend, base de données)<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Intégration continue via GitHub Actions<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Déploiement sur Render, Railway, Netlify ou Vercel<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Utilisation d’un repository GitHub pour la gestion du code source et du versionnement<br>
 
 ## ✨ Fonctionnalités Détailées<br>
 --> **👤 Gestion des utilisateurs**<br>
-    - Création de compte, connexion, mise à jour du profil<br>
-    - Rôles définis : utilisateur, administrateur<br>
-    - Système de permissions basé sur Laratrust<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Création de compte, connexion, mise à jour du profil<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Rôles définis : utilisateur, administrateur<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Système de permissions basé sur Laratrust<br>
 
 --> **📚 Gestion des compétences**<br>
-    - Publication d’une compétence avec description et catégories<br>
-    - Exploration des compétences publiées par la communauté<br>
-    - Filtres et recherche avancée<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Publication d’une compétence avec description et catégories<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Exploration des compétences publiées par la communauté<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Filtres et recherche avancée<br>
 
 --> **🔁 Système d’échanges avec crédits**<br>
-    - Chaque utilisateur possède un solde de crédits<br>
-    - Acceptation et demande d’échanges entre membres<br>
-    - Mise à jour automatique du solde après chaque échange<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Chaque utilisateur possède un solde de crédits<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Acceptation et demande d’échanges entre membres<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Mise à jour automatique du solde après chaque échange<br>
 
 --> **💬 Chat en temps réel**<br>
-    - Système de messagerie permettant la communication entre utilisateurs<br>
-    - Notifications lors de nouveaux messages ou demandes d’échange<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Système de messagerie permettant la communication entre utilisateurs<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Notifications lors de nouveaux messages ou demandes d’échange<br>
 
 --> **📊 Tableau de bord utilisateur**<br>
-    - Suivi des crédits<br>
-    - Historique des échanges<br>
-    - Activité récente<br>
-    - Statistiques personnelles<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Suivi des crédits<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Historique des échanges<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Activité récente<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Statistiques personnelles<br>
 
 --> **🛠 Interface d’administration**<br>
-    - Gestion des utilisateurs<br>
-    - Gestion des compétences<br>
-    - Modération des échanges<br>
-    - Accès aux statistiques globales<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Gestion des utilisateurs<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Gestion des compétences<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Modération des échanges<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Accès aux statistiques globales<br>
 
 ## 🧩 Conception & Documentation
 
@@ -121,6 +121,7 @@ Le projet comprend plusieurs livrables essentiels pour garantir une structure ro
 
 **Salma ELQADI** — Développeuse Fullstack / Chef de Projet<br>
 **Salma Harda** — Superviseure Académique
+
 
 
 
