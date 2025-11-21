@@ -21,78 +21,78 @@ Cette plateforme favorise le partage, l’apprentissage et la collaboration entr
 - Toute personne souhaitant apprendre ou partager son expertise gratuitement.
 
 ## 🧱 Architecture Technique
---> 🔧 Backend — Laravel<br>
+--> **🔧 Backend — Laravel**<br>
     - Framework Laravel (PHP)<br>
     - ORM Eloquent pour la gestion de la base de données<br>
     - Authentification sécurisée via Laravel Sanctum<br>
     - Gestion des rôles et permissions avec Laratrust<br>
     - Architecture REST pour l’API<br>
 
---> 🎨 Frontend — React
-    - React.js en Single Page Application
-    - Gestion d’état via Redux Toolkit ou Zustand
-    - Interfaces construites avec Tailwind CSS ou Material UI
-    - Consommation de l’API via Axios
+--> **🎨 Frontend — React**<br>
+    - React.js en Single Page Application<br>
+    - Gestion d’état via Redux Toolkit ou Zustand<br>
+    - Interfaces construites avec Tailwind CSS ou Material UI<br>
+    - Consommation de l’API via Axios<br>
 
---> 🗄️ Base de données
-    - MySQL
-    - Modélisation relationnelle adaptée à la gestion des compétences, profils, échanges et messages
+--> **🗄️ Base de données**<br>
+    - MySQL<br>
+    - Modélisation relationnelle adaptée à la gestion des compétences, profils, échanges et messages<br>
 
---> 🐳 Déploiement & DevOps
-    - Conteneurisation complète via Docker (backend, frontend, base de données)
-    - Intégration continue via GitHub Actions
-    - Déploiement sur Render, Railway, Netlify ou Vercel
-    - Utilisation d’un repository GitHub pour la gestion du code source et du versionnement
+--> **🐳 Déploiement & DevOps**<br>
+    - Conteneurisation complète via Docker (backend, frontend, base de données)<br>
+    - Intégration continue via GitHub Actions<br>
+    - Déploiement sur Render, Railway, Netlify ou Vercel<br>
+    - Utilisation d’un repository GitHub pour la gestion du code source et du versionnement<br>
 
-## ✨ Fonctionnalités Détailées
---> 👤 Gestion des utilisateurs
-    - Création de compte, connexion, mise à jour du profil
-    - Rôles définis : utilisateur, administrateur
-    - Système de permissions basé sur Laratrust
+## ✨ Fonctionnalités Détailées<br>
+--> **👤 Gestion des utilisateurs**<br>
+    - Création de compte, connexion, mise à jour du profil<br>
+    - Rôles définis : utilisateur, administrateur<br>
+    - Système de permissions basé sur Laratrust<br>
 
---> 📚 Gestion des compétences
-    - Publication d’une compétence avec description et catégories
-    - Exploration des compétences publiées par la communauté
-    - Filtres et recherche avancée
+--> **📚 Gestion des compétences**<br>
+    - Publication d’une compétence avec description et catégories<br>
+    - Exploration des compétences publiées par la communauté<br>
+    - Filtres et recherche avancée<br>
 
---> 🔁 Système d’échanges avec crédits
-    - Chaque utilisateur possède un solde de crédits
-    - Acceptation et demande d’échanges entre membres
-    - Mise à jour automatique du solde après chaque échange
+--> **🔁 Système d’échanges avec crédits**<br>
+    - Chaque utilisateur possède un solde de crédits<br>
+    - Acceptation et demande d’échanges entre membres<br>
+    - Mise à jour automatique du solde après chaque échange<br>
 
---> 💬 Chat en temps réel
-    - Système de messagerie permettant la communication entre utilisateurs
-    - Notifications lors de nouveaux messages ou demandes d’échange
+--> **💬 Chat en temps réel**<br>
+    - Système de messagerie permettant la communication entre utilisateurs<br>
+    - Notifications lors de nouveaux messages ou demandes d’échange<br>
 
---> 📊 Tableau de bord utilisateur
-    - Suivi des crédits
-    - Historique des échanges
-    - Activité récente
-    - Statistiques personnelles
+--> **📊 Tableau de bord utilisateur**<br>
+    - Suivi des crédits<br>
+    - Historique des échanges<br>
+    - Activité récente<br>
+    - Statistiques personnelles<br>
 
---> 🛠 Interface d’administration
-    - Gestion des utilisateurs
-    - Gestion des compétences
-    - Modération des échanges
-    - Accès aux statistiques globales
+--> **🛠 Interface d’administration**<br>
+    - Gestion des utilisateurs<br>
+    - Gestion des compétences<br>
+    - Modération des échanges<br>
+    - Accès aux statistiques globales<br>
 
 ## 🧩 Conception & Documentation
 
 Le projet comprend plusieurs livrables essentiels pour garantir une structure robuste et professionnelle.
 
---> 📐 UML :
+--> **📐 UML :**
 
 1. Diagramme des cas d’utilisation
 2. Diagramme de classes
 
---> 🎨 Maquettage : Design complet réalisé sur Figma
+--> **🎨 Maquettage : Design complet réalisé sur Figma**
 
---> 📘 Documentation API
+--> **📘 Documentation API**
 
 1. Documentation détaillée de l’ensemble des routes de l’API
 2. Structure des réponses
    
---> 🗂 Cahier des charges
+--> **🗂 Cahier des charges**
 
 1. Contexte général
 2. Analyse du besoin
@@ -100,13 +100,13 @@ Le projet comprend plusieurs livrables essentiels pour garantir une structure ro
 4. Fonctionnalités
 5. Architecture logicielle
 
---> 🗓️ Planification du projet avec Jira
+--> **🗓️ Planification du projet avec Jira**
 
 1. Organisation et gestion des tâches via Jira
 2. Répartition par sprints
 3. Suivi du développement
 
-## 📦 Deliverables (Liens)
+## **📦 Deliverables (Liens)**
 
 1. Cahier des charges : https://docs.google.com/document/d/1GJmJlgPByMii3xBBhvE7MmQdXmkawIPvA5mkfWOSg3Q/edit?tab=t.0#heading=h.3knb4dh0h6rk
 2. Planification avec Jira : 
@@ -119,6 +119,7 @@ Le projet comprend plusieurs livrables essentiels pour garantir une structure ro
 
 ## 👥 Équipe
 
-Salma ELQADI — Développeuse Fullstack / Chef de Projet
-Salma Harda — Superviseure Académique
+**Salma ELQADI** — Développeuse Fullstack / Chef de Projet<br>
+**Salma Harda** — Superviseure Académique
+
 
