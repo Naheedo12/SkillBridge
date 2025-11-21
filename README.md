@@ -25,7 +25,7 @@ Cette plateforme favorise le partage, l’apprentissage et la collaboration entr
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Framework Laravel (PHP)<br>
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- ORM Eloquent pour la gestion de la base de données<br>
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Authentification sécurisée via Laravel Sanctum<br>
-    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Gestion des rôles et permissions avec Laratrust<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Gestion des rôles et permissions<br>
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Architecture REST pour l’API<br>
 
 --> **🎨 Frontend — React**<br>
@@ -123,6 +123,7 @@ Le projet comprend plusieurs livrables essentiels pour garantir une structure ro
 
 **Salma ELQADI** — Développeuse Fullstack / Chef de Projet<br>
 **Salma Harda** — Superviseure Académique
+
 
 
 
