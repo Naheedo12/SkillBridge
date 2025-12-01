@@ -113,8 +113,8 @@ Le projet comprend plusieurs livrables essentiels pour garantir une structure ro
 2. Planification avec Jira :<br>
 [![Google Docs](https://img.shields.io/badge/📋_Plannification_Jira-View-blue?style=for-the-badge&logo=googledocs)](https://elqadisalma.atlassian.net/jira/software/c/projects/SKIL/boards/34/timeline?atlOrigin=eyJpIjoiNGM4ODEwZWIxZThlNDUwNGI5ZTE3OGVlNmE5Y2U4NjIiLCJwIjoiaiJ9)
 3. Diagrammes UML :
-   - Diagramme des cas d’utilisation :
-   - Diagramme de classes :
+   - Diagramme des cas d’utilisation : [![Google Docs](https://img.shields.io/badge/📋_Diagramme_des_cas_d_utilisation-View-blue?style=for-the-badge&logo=googledocs)](https://lucid.app/lucidchart/8703906f-d86c-4c23-b60a-f698cbc10376/edit?viewport_loc=-751%2C-1420%2C3571%2C1675%2C1~8~49xe37I-&invitationId=inv_73baecde-2b35-4e6a-8519-057c1b01bfb1)
+   - Diagramme de classes : [![Google Docs](https://img.shields.io/badge/📋_Diagramme_de_classe-View-blue?style=for-the-badge&logo=googledocs)](https://lucid.app/lucidchart/8703906f-d86c-4c23-b60a-f698cbc10376/edit?viewport_loc=-1144%2C-1348%2C4159%2C1951%2C0_0&invitationId=inv_73baecde-2b35-4e6a-8519-057c1b01bfb1)
 4. Maquettes Figma :
 5. Documentation API :
 6. Application déployée :
@@ -123,6 +123,7 @@ Le projet comprend plusieurs livrables essentiels pour garantir une structure ro
 
 **Salma ELQADI** — Développeuse Fullstack / Chef de Projet<br>
 **Salma Harda** — Superviseure Académique
+
 
 
 
