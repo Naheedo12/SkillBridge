@@ -1,12 +1,69 @@
 import { Link } from 'react-router-dom';
+import { Search, Bell, MessageSquare, User } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 import logoImage from './logo.png';
 
 const Header = () => {
+  const { user, logout, isAuthenticated } = useAuth();
+
+  const handleLogout = async () => {
+    await logout();
+  };
+
+  if (!isAuthenticated) {
+    // Header avant connexion
+    return (
+      <header className="bg-white shadow-md">
+        <div className="w-full px-16">
+          <div className="flex items-center h-16">
+            <div className="flex items-center ml-10">
+              <Link to="/">
+                <img 
+                  src={logoImage} 
+                  alt="SkillBridge Logo" 
+                  className="h-12 w-auto"
+                />
+              </Link>
+            </div>
+            <nav className="flex-1 flex justify-center">
+              <div className="hidden md:flex space-x-8">
+                <Link to="/" className="text-gray-600 hover:text-gray-900 transition-colors">
+                  Accueil
+                </Link>
+                <Link to="/competences" className="text-gray-600 hover:text-gray-900 transition-colors">
+                  Compétences
+                </Link>
+                <Link to="/contact" className="text-gray-600 hover:text-gray-900 transition-colors">
+                  Contact
+                </Link>
+              </div>
+            </nav>
+            <div className="flex items-center space-x-3 mr-10">
+              <Link 
+                to="/login" 
+                className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                Connexion
+              </Link>
+              <Link 
+                to="/register" 
+                className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+              >
+                Inscription
+              </Link>
+            </div>
+          </div>
+        </div>
+      </header>
+    );
+  }
+
+  // Header après connexion
   return (
     <header className="bg-white shadow-md">
       <div className="w-full px-16">
         <div className="flex items-center h-16">
-          {/* Logo - Avec beaucoup d'espace à gauche */}
+          {/* Logo */}
           <div className="flex items-center ml-10">
             <Link to="/">
               <img 
@@ -17,7 +74,6 @@ const Header = () => {
             </Link>
           </div>
 
-          {/* Navigation - Centrée */}
           <nav className="flex-1 flex justify-center">
             <div className="hidden md:flex space-x-8">
               <Link to="/" className="text-gray-600 hover:text-gray-900 transition-colors">
@@ -26,26 +82,51 @@ const Header = () => {
               <Link to="/competences" className="text-gray-600 hover:text-gray-900 transition-colors">
                 Compétences
               </Link>
+              <Link to="/dashboard" className="text-gray-600 hover:text-gray-900 transition-colors">
+                Tableau de bord
+              </Link>
               <Link to="/contact" className="text-gray-600 hover:text-gray-900 transition-colors">
                 Contact
               </Link>
             </div>
           </nav>
 
-          {/* Auth Buttons - Avec beaucoup d'espace à droite */}
-          <div className="flex space-x-3 mr-10">
-            <Link 
-              to="/login" 
-              className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-            >
-              Connexion
-            </Link>
-            <Link 
-              to="/register" 
+          <div className="flex items-center space-x-3 mr-10">
+            <div className="bg-purple-100 px-3 py-1 rounded-lg">
+              <span className="text-sm font-semibold" style={{ color: '#9810fa' }}>
+                {user?.solde_credits || 0} crédits
+              </span>
+            </div>
+
+            <button className="p-2 text-gray-500 hover:text-gray-700 transition-colors">
+              <Search className="h-5 w-5" />
+            </button>
+
+            <button className="relative p-2 text-gray-500 hover:text-gray-700 transition-colors">
+              <Bell className="h-5 w-5" />
+              <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+            </button>
+
+            <button className="p-2 text-gray-500 hover:text-gray-700 transition-colors">
+              <MessageSquare className="h-5 w-5" />
+            </button>
+
+            <button className="p-2 text-gray-500 hover:text-gray-700 transition-colors">
+              <User className="h-5 w-5" />
+            </button>
+
+            <button 
               className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
             >
-              Inscription
-            </Link>
+              Publier une compétence
+            </button>
+
+            <button 
+              onClick={handleLogout}
+              className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              Déconnexion
+            </button>
           </div>
         </div>
       </div>

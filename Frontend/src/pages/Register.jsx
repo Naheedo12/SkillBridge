@@ -1,42 +1,67 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Eye, EyeOff, Mail, Lock, User, CheckCircle2 } from 'lucide-react';
+import { Mail, Lock, User, CheckCircle2 } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 
 const Register = () => {
   const navigate = useNavigate();
-  const [showPassword, setShowPassword] = useState(false);
-  const [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
+  const { register } = useAuth();
+
   const [nom, setNom] = useState('');
+  const [prenom, setPrenom] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [passwordConfirm, setPasswordConfirm] = useState('');
   const [accepteConditions, setAccepteConditions] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setError('');
+
     if (password !== passwordConfirm) {
-      alert('Les mots de passe ne correspondent pas');
+      setError('Les mots de passe ne correspondent pas');
+      setLoading(false);
       return;
     }
+
     if (!accepteConditions) {
-      alert("Vous devez accepter les conditions d'utilisation");
+      setError("Vous devez accepter les conditions d'utilisation");
+      setLoading(false);
       return;
     }
-    console.log('Inscription:', { nom, email, password });
-    alert('Inscription réussie ! Vous avez reçu 10 crédits gratuits 🎉');
-    navigate('/dashboard');
+
+    try {
+      const result = await register({
+        nom,
+        prenom,
+        email,
+        motDePasse: password,
+        motDePasse_confirmation: passwordConfirm
+      });
+
+      if (result.success) {
+        navigate('/home');
+      } else {
+        setError(result.message || 'Erreur lors de l\'inscription');
+      }
+    } catch (error) {
+      setError('Une erreur est survenue lors de l\'inscription');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: '#f8f1f6' }}>
+    <div className="min-h-screen flex flex-col" style={{ backgroundColor: '#f8f1f6' }}>
       <Header />
 
-      {/* Main Content */}
       <main className="flex-1 flex items-center justify-center px-4 py-12">
         <div className="max-w-xl w-full">
-          {/* Welcome Text */}
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold text-gray-900 mb-4 whitespace-nowrap">
               Bienvenue sur SkillBridge
@@ -54,10 +79,39 @@ const Register = () => {
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Nom complet */}
+              {/* Error Message */}
+              {error && (
+                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+                  {error}
+                </div>
+              )}
+
+              {/* Prénom */}
+              <div>
+                <label htmlFor="prenom" className="block text-sm font-medium text-gray-700 mb-2">
+                  Prénom
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <User className="h-5 w-5 text-gray-400" />
+                  </div>
+                  <input
+                    type="text"
+                    id="prenom"
+                    value={prenom}
+                    onChange={(e) => setPrenom(e.target.value)}
+                    placeholder="Salma"
+                    className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent"
+                    style={{ '--tw-ring-color': '#9810fa' }}
+                    required
+                  />
+                </div>
+              </div>
+
+              {/* Nom */}
               <div>
                 <label htmlFor="nom" className="block text-sm font-medium text-gray-700 mb-2">
-                  Nom complet
+                  Nom
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -68,7 +122,7 @@ const Register = () => {
                     id="nom"
                     value={nom}
                     onChange={(e) => setNom(e.target.value)}
-                    placeholder="Salma ELGADI"
+                    placeholder="ELQADI"
                     className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent"
                     style={{ '--tw-ring-color': '#9810fa' }}
                     required
@@ -108,26 +162,15 @@ const Register = () => {
                     <Lock className="h-5 w-5 text-gray-400" />
                   </div>
                   <input
-                    type={showPassword ? 'text' : 'password'}
+                    type="password"
                     id="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
-                    className="block w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent"
+                    className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent"
                     style={{ '--tw-ring-color': '#9810fa' }}
                     required
                   />
-                  <button
-                    type="button"
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                    onClick={() => setShowPassword(!showPassword)}
-                  >
-                    {showPassword ? (
-                      <EyeOff className="h-5 w-5 text-gray-400" />
-                    ) : (
-                      <Eye className="h-5 w-5 text-gray-400" />
-                    )}
-                  </button>
                 </div>
                 <p className="text-xs text-gray-500 mt-1">Minimum 8 caractères avec majuscules et chiffres</p>
               </div>
@@ -142,26 +185,15 @@ const Register = () => {
                     <Lock className="h-5 w-5 text-gray-400" />
                   </div>
                   <input
-                    type={showPasswordConfirm ? 'text' : 'password'}
+                    type="password"
                     id="password-confirm"
                     value={passwordConfirm}
                     onChange={(e) => setPasswordConfirm(e.target.value)}
                     placeholder="••••••••"
-                    className="block w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent"
+                    className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent"
                     style={{ '--tw-ring-color': '#9810fa' }}
                     required
                   />
-                  <button
-                    type="button"
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                    onClick={() => setShowPasswordConfirm(!showPasswordConfirm)}
-                  >
-                    {showPasswordConfirm ? (
-                      <EyeOff className="h-5 w-5 text-gray-400" />
-                    ) : (
-                      <Eye className="h-5 w-5 text-gray-400" />
-                    )}
-                  </button>
                 </div>
               </div>
 
@@ -202,10 +234,11 @@ const Register = () => {
               {/* Submit Button */}
               <button
                 type="submit"
-                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white transition-colors hover:opacity-90"
+                disabled={loading}
+                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white transition-colors hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
                 style={{ backgroundColor: '#9810fa' }}
               >
-                Créer mon compte
+                {loading ? 'Création du compte...' : 'Créer mon compte'}
               </button>
 
               {/* Login Link */}

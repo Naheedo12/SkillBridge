@@ -38,6 +38,11 @@ class User extends Authenticatable
         return $this->motDePasse;
     }
 
+    public function getAuthPasswordName()
+    {
+        return 'motDePasse';
+    }
+
     // relations
     /**
      * Les compétences proposées par l'utilisateur
