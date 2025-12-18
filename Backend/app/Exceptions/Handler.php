@@ -45,4 +45,52 @@ class Handler extends ExceptionHandler
             //
         });
     }
+
+    /**
+     * Render an exception into an HTTP response.
+     */
+    public function render($request, Throwable $e)
+    {
+        // Handle API authentication errors
+        if ($request->expectsJson()) {
+            if ($e instanceof \Illuminate\Auth\AuthenticationException) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Non authentifié. Veuillez vous connecter.'
+                ], 401);
+            }
+
+            if ($e instanceof \Illuminate\Auth\Access\AuthorizationException) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Accès refusé.'
+                ], 403);
+            }
+
+            if ($e instanceof \Illuminate\Validation\ValidationException) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Erreur de validation',
+                    'errors' => $e->errors()
+                ], 422);
+            }
+
+            // Handle other exceptions for API
+            if (config('app.debug')) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Erreur serveur',
+                    'error' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString()
+                ], 500);
+            }
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur serveur interne'
+            ], 500);
+        }
+
+        return parent::render($request, $e);
+    }
 }
