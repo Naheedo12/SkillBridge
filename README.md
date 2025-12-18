@@ -115,7 +115,7 @@ Le projet comprend plusieurs livrables essentiels pour garantir une structure ro
 3. Diagrammes UML :
    - Diagramme des cas d’utilisation : [![Google Docs](https://img.shields.io/badge/📋_Diagramme_des_cas_d_utilisation-View-blue?style=for-the-badge&logo=googledocs)](https://lucid.app/lucidchart/8703906f-d86c-4c23-b60a-f698cbc10376/edit?viewport_loc=1103%2C-153%2C3677%2C1653%2C1~8~49xe37I-&invitationId=inv_73baecde-2b35-4e6a-8519-057c1b01bfb1)
    - Diagramme de classes : [![Google Docs](https://img.shields.io/badge/📋_Diagramme_de_classe-View-blue?style=for-the-badge&logo=googledocs)](https://lucid.app/lucidchart/c02267b5-0baf-4642-a023-43fb4f9ce7e5/edit?invitationId=inv_35906896-98e0-4841-8ab1-af99f1a5d0ec)
-4. Maquettes Figma :
+4. Maquettes Figma : [![Google Docs](https://img.shields.io/badge/🎨_Figma-View-blue?style=for-the-badge&logo=googledocs)](https://www.figma.com/design/BT1nJdQ8koNWpVgzREj3Fz/SkillBridge?node-id=0-1&t=IpKqe8SJlt9p6Kr2-1)
 5. Documentation API :
 6. Application déployée :
 
@@ -123,6 +123,7 @@ Le projet comprend plusieurs livrables essentiels pour garantir une structure ro
 
 **Salma ELQADI** — Développeuse Fullstack / Chef de Projet<br>
 **Salma Harda** — Superviseure Académique
+
 
 
 
