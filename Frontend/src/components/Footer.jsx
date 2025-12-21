@@ -10,10 +10,12 @@ export default function Footer() {
           {/* À propos */}
           <div>
             <h3 className="mb-4 text-lg font-semibold">À Propos</h3>
-            <p className="text-sm text-gray-300 leading-relaxed">
-              SkillBridge connecte les personnes pour échanger leurs compétences sans argent, grâce à un système de
-              crédits transparent et équitable.
-            </p>
+            <div className="text-sm text-gray-300 leading-relaxed space-y-2 text-justify">
+              <p className="m-0">SkillBridge connecte les personnes pour</p>
+              <p className="m-0">échanger leurs compétences sans argent,</p>
+              <p className="m-0">grâce à un système de crédits transparent</p>
+              <p className="m-0">et équitable.</p>
+            </div>
           </div>
 
           {/* Liens utiles */}

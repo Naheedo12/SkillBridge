@@ -201,7 +201,7 @@ const Register = () => {
               <div className="rounded-lg p-4" style={{ backgroundColor: '#f0f4ff' }}>
                 <p className="text-sm font-medium text-gray-900 mb-2">Bonus de bienvenue :</p>
                 <div className="flex items-start gap-2">
-                  <CheckCircle2 className="mt-0.5 h-4 w-4 flex-shrink-0" style={{ color: '#9810fa' }} />
+                  <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" style={{ color: '#9810fa' }} />
                   <p className="text-sm text-gray-600">
                     <strong style={{ color: '#9810fa' }}>10 crédits gratuits</strong> à l'inscription pour commencer à
                     échanger immédiatement
