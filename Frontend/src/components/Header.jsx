@@ -10,9 +10,10 @@ const Header = () => {
   const handleLogout = async () => {
     try {
       await logout();
-      navigate('/');
+      window.location.href = '/';
     } catch (error) {
       console.error('Erreur lors de la déconnexion:', error);
+      window.location.href = '/';
     }
   };
 
