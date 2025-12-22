@@ -8,6 +8,7 @@ import Contact from './pages/Contact';
 import Competences from './pages/Competences';
 import CompetenceDetail from './pages/CompetenceDetail';
 import Chat from './pages/Chat';
+import AddCompetence from './pages/AddCompetence';
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
             <Route path="/competences" element={<Competences />} />
             <Route path="/competences/:id" element={<CompetenceDetail />} />
             <Route path="/chat" element={<Chat />} />
+            <Route path="/add-competence" element={<AddCompetence />} />
           </Routes>
         </div>
       </Router>

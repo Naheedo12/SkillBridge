@@ -113,9 +113,9 @@ const Header = () => {
               <User className="h-5 w-5" />
             </button>
 
-            <button className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700">
+            <Link to="/add-competence" className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700">
               Publier une compétence
-            </button>
+            </Link>
 
             <button 
               onClick={handleLogout}
