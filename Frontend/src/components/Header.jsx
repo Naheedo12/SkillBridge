@@ -105,9 +105,9 @@ const Header = () => {
               <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
             </button>
 
-            <button className="p-2 text-gray-500 hover:text-gray-700">
+            <Link to="/chat" className="p-2 text-gray-500 hover:text-gray-700">
               <MessageSquare className="h-5 w-5" />
-            </button>
+            </Link>
 
             <button className="p-2 text-gray-500 hover:text-gray-700">
               <User className="h-5 w-5" />
@@ -119,7 +119,7 @@ const Header = () => {
 
             <button 
               onClick={handleLogout}
-              className="px-4 py-2 border border-gray-300 text-gray-600 rounded-lg hover:bg-gray-50 transition-colors duration-200"
+              className="px-4 py-2 border border-gray-300 text-gray-600 rounded-lg hover:bg-gray-50 transition-colors duration-200 cursor-pointer"
             >
               Déconnexion
             </button>
