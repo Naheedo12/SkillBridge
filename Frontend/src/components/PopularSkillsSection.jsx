@@ -1,6 +1,9 @@
+import { Link } from 'react-router-dom';
+
 const PopularSkillsSection = () => {
   const skills = [
     {
+      id: 1,
       image: "https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=400&h=300&fit=crop",
       category: "Informatique",
       categoryColor: "text-purple-600",
@@ -13,6 +16,7 @@ const PopularSkillsSection = () => {
       credits: 2
     },
     {
+      id: 2,
       image: "https://images.unsplash.com/photo-1510915361894-db8b60106cb1?w=400&h=300&fit=crop",
       category: "Musique",
       categoryColor: "text-purple-600",
@@ -25,6 +29,7 @@ const PopularSkillsSection = () => {
       credits: 2
     },
     {
+      id: 3,
       image: "https://images.unsplash.com/photo-1561070791-2526d30994b5?w=400&h=300&fit=crop",
       category: "Design",
       categoryColor: "text-purple-600",
@@ -37,6 +42,7 @@ const PopularSkillsSection = () => {
       credits: 2
     },
     {
+      id: 4,
       image: "https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=400&h=300&fit=crop",
       category: "Cuisine",
       categoryColor: "text-purple-600",
@@ -49,6 +55,7 @@ const PopularSkillsSection = () => {
       credits: 2
     },
     {
+      id: 5,
       image: "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=400&h=300&fit=crop",
       category: "Langues",
       categoryColor: "text-purple-600",
@@ -61,6 +68,7 @@ const PopularSkillsSection = () => {
       credits: 2
     },
     {
+      id: 6,
       image: "https://images.unsplash.com/photo-1554048612-b6a482bc67e5?w=400&h=300&fit=crop",
       category: "Art",
       categoryColor: "text-purple-600",
@@ -97,10 +105,11 @@ const PopularSkillsSection = () => {
 
         {/* Grille des compétences */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {skills.map((skill, index) => (
-            <div 
-              key={index} 
-              className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-lg transition-shadow duration-300 cursor-pointer group"
+          {skills.map((skill) => (
+            <Link 
+              key={skill.id} 
+              to={`/competences/${skill.id}`}
+              className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-lg transition-shadow duration-300 cursor-pointer group block"
             >
               {/* Image de la compétence */}
               <div className="relative h-48 overflow-hidden">
@@ -154,7 +163,7 @@ const PopularSkillsSection = () => {
                   </div>
                 </div>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       </div>
