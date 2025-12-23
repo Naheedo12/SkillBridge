@@ -9,6 +9,7 @@ import Competences from './pages/Competences';
 import CompetenceDetail from './pages/CompetenceDetail';
 import Chat from './pages/Chat';
 import AddCompetence from './pages/AddCompetence';
+import Notifications from './pages/Notifications';
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
             <Route path="/competences/:id" element={<CompetenceDetail />} />
             <Route path="/chat" element={<Chat />} />
             <Route path="/add-competence" element={<AddCompetence />} />
+            <Route path="/notifications" element={<Notifications />} />
           </Routes>
         </div>
       </Router>
