@@ -40,45 +40,6 @@ const PopularSkillsSection = () => {
       avatar: "https://ui-avatars.com/api/?name=Salma+ELQADI&background=9810fa&color=fff",
       rating: 4.7,
       credits: 2
-    },
-    {
-      id: 4,
-      image: "https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=400&h=300&fit=crop",
-      category: "Cuisine",
-      categoryColor: "text-purple-600",
-      categoryBg: "bg-purple-100",
-      level: "Tous niveaux",
-      title: "Cuisine Italienne Authentique",
-      instructor: "Salma ELQADI",
-      avatar: "https://ui-avatars.com/api/?name=Salma+ELQADI&background=9810fa&color=fff",
-      rating: 5.0,
-      credits: 2
-    },
-    {
-      id: 5,
-      image: "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=400&h=300&fit=crop",
-      category: "Langues",
-      categoryColor: "text-purple-600",
-      categoryBg: "bg-purple-100",
-      level: "Intermédiaire",
-      title: "Conversation Anglais Courant",
-      instructor: "Salma ELQADI",
-      avatar: "https://ui-avatars.com/api/?name=Salma+ELQADI&background=9810fa&color=fff",
-      rating: 4.8,
-      credits: 2
-    },
-    {
-      id: 6,
-      image: "https://images.unsplash.com/photo-1554048612-b6a482bc67e5?w=400&h=300&fit=crop",
-      category: "Art",
-      categoryColor: "text-purple-600",
-      categoryBg: "bg-purple-100",
-      level: "Avancé",
-      title: "Photographie Portrait",
-      instructor: "Salma ELQADI",
-      avatar: "https://ui-avatars.com/api/?name=Salma+ELQADI&background=9810fa&color=fff",
-      rating: 4.9,
-      credits: 2
     }
   ];
 

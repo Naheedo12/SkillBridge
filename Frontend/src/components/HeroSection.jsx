@@ -1,4 +1,19 @@
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+
 const HeroSection = () => {
+  const [searchQuery, setSearchQuery] = useState('');
+  const navigate = useNavigate();
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/competences?search=${encodeURIComponent(searchQuery.trim())}`);
+    } else {
+      navigate('/competences');
+    }
+  };
+
   return (
     <div className="w-full min-h-screen relative bg-linear-to-br from-slate-900 via-indigo-950 to-fuchsia-900 overflow-hidden flex items-center justify-center">
       
@@ -33,36 +48,43 @@ const HeroSection = () => {
             Partagez votre expertise et découvrez de nouvelles compétences sans dépenser un centime.
           </p>
 
-          {/* Search bar (design only) */}
+          {/* Search bar */}
           <div className="w-full max-w-2xl mx-auto">
-            <div className="flex bg-white rounded-xl shadow-[0px_25px_50px_0px_rgba(0,0,0,0.25)] overflow-hidden">
-              
-              <div className="flex-1 flex items-center px-4">
-                <svg
-                  className="w-4 h-4 text-gray-400 mr-3"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+            <form onSubmit={handleSearch}>
+              <div className="flex bg-white rounded-xl shadow-[0px_25px_50px_0px_rgba(0,0,0,0.25)] overflow-hidden">
+                
+                <div className="flex-1 flex items-center px-4">
+                  <svg
+                    className="w-4 h-4 text-gray-400 mr-3"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                    />
+                  </svg>
+
+                  <input
+                    type="text"
+                    placeholder="Quelle compétence recherchez-vous ?"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="flex-1 py-4 text-gray-700 text-base font-normal font-['Inter'] border-none outline-none bg-transparent placeholder-gray-400"
                   />
-                </svg>
+                </div>
 
-                <input
-                  type="text"
-                  placeholder="Quelle compétence recherchez-vous ?"
-                  className="flex-1 py-4 text-gray-700 text-base font-normal font-['Inter'] border-none outline-none bg-transparent placeholder-gray-400"
-                />
+                <button 
+                  type="submit"
+                  className="px-8 py-4 bg-violet-700 hover:bg-violet-800 transition-colors duration-200 text-white text-base font-medium font-['Inter']"
+                >
+                  Rechercher
+                </button>
               </div>
-
-              <button className="px-8 py-4 bg-violet-700 hover:bg-violet-800 transition-colors duration-200 text-white text-base font-medium font-['Inter']">
-                Rechercher
-              </button>
-            </div>
+            </form>
           </div>
 
         </div>

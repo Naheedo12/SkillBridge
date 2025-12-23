@@ -1,12 +1,27 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 
 const Competences = () => {
+  const [searchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('Toutes catégories');
   const [selectedLevel, setSelectedLevel] = useState('Tous niveaux');
+
+  // Récupérer les paramètres depuis l'URL au chargement
+  useEffect(() => {
+    const searchFromUrl = searchParams.get('search');
+    const categoryFromUrl = searchParams.get('category');
+    
+    if (searchFromUrl) {
+      setSearchQuery(searchFromUrl);
+    }
+    
+    if (categoryFromUrl) {
+      setSelectedCategory(categoryFromUrl);
+    }
+  }, [searchParams]);
 
   const skills = [
     {
@@ -128,6 +143,15 @@ const Competences = () => {
     }
   ];
 
+  // Fonction de filtrage dynamique
+  const filteredSkills = skills.filter((skill) => {
+    const matchesSearch = skill.title.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCategory = selectedCategory === 'Toutes catégories' || skill.category === selectedCategory;
+    const matchesLevel = selectedLevel === 'Tous niveaux' || skill.level === selectedLevel;
+    
+    return matchesSearch && matchesCategory && matchesLevel;
+  });
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
@@ -207,12 +231,42 @@ const Competences = () => {
       <section className="py-8 px-4">
         <div className="max-w-7xl mx-auto">
           <p className="text-gray-600 font-['Inter'] mb-8">
-            {skills.length} compétences trouvées
+            {filteredSkills.length} compétence{filteredSkills.length !== 1 ? 's' : ''} trouvée{filteredSkills.length !== 1 ? 's' : ''}
+            {searchQuery && (
+              <span className="ml-2 text-purple-600">
+                pour "{searchQuery}"
+              </span>
+            )}
           </p>
+
+          {/* Message si aucun résultat */}
+          {filteredSkills.length === 0 && (
+            <div className="text-center py-12">
+              <div className="text-gray-400 mb-4">
+                <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">Aucune compétence trouvée</h3>
+              <p className="text-gray-600 mb-4">
+                Essayez de modifier vos critères de recherche ou vos filtres
+              </p>
+              <button 
+                onClick={() => {
+                  setSearchQuery('');
+                  setSelectedCategory('Toutes catégories');
+                  setSelectedLevel('Tous niveaux');
+                }}
+                className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+              >
+                Réinitialiser les filtres
+              </button>
+            </div>
+          )}
 
           {/* Grille des compétences */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {skills.map((skill) => (
+            {filteredSkills.map((skill) => (
               <Link
                 key={skill.id}
                 to={`/competences/${skill.id}`}
@@ -274,26 +328,28 @@ const Competences = () => {
             ))}
           </div>
 
-          {/* Pagination */}
-          <div className="flex justify-center mt-12">
-            <nav className="flex items-center gap-2">
-              <button className="px-4 py-2 text-gray-500 hover:text-gray-700 font-['Inter']">
-                Précédent
-              </button>
-              <button className="px-4 py-2 bg-purple-600 text-white rounded-lg font-['Inter']">
-                1
-              </button>
-              <button className="px-4 py-2 text-gray-700 hover:text-gray-900 font-['Inter']">
-                2
-              </button>
-              <button className="px-4 py-2 text-gray-700 hover:text-gray-900 font-['Inter']">
-                3
-              </button>
-              <button className="px-4 py-2 text-gray-500 hover:text-gray-700 font-['Inter']">
-                Suivant
-              </button>
-            </nav>
-          </div>
+          {/* Pagination - Afficher seulement s'il y a des résultats */}
+          {filteredSkills.length > 0 && (
+            <div className="flex justify-center mt-12">
+              <nav className="flex items-center gap-2">
+                <button className="px-4 py-2 text-gray-500 hover:text-gray-700 font-['Inter']">
+                  Précédent
+                </button>
+                <button className="px-4 py-2 bg-purple-600 text-white rounded-lg font-['Inter']">
+                  1
+                </button>
+                <button className="px-4 py-2 text-gray-700 hover:text-gray-900 font-['Inter']">
+                  2
+                </button>
+                <button className="px-4 py-2 text-gray-700 hover:text-gray-900 font-['Inter']">
+                  3
+                </button>
+                <button className="px-4 py-2 text-gray-500 hover:text-gray-700 font-['Inter']">
+                  Suivant
+                </button>
+              </nav>
+            </div>
+          )}
         </div>
       </section>
 
