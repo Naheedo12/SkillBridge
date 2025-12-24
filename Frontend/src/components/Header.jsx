@@ -1,24 +1,20 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, Bell, MessageSquare, User } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
+import { Bell, MessageSquare, User } from 'lucide-react';
+import useAuthStore from '../stores/authStore';
 import logoImage from './logo.png';
 
 const Header = () => {
-  const { user, logout, isAuthenticated } = useAuth();
+  const user = useAuthStore(state => state.user);
+  const logout = useAuthStore(state => state.logout);
   const navigate = useNavigate();
 
   const handleLogout = async () => {
-    try {
-      await logout();
-      window.location.href = '/';
-    } catch (error) {
-      console.error('Erreur lors de la déconnexion:', error);
-      window.location.href = '/';
-    }
+    await logout();
+    navigate('/');
   };
 
   // header avant connexion
-  if (!isAuthenticated) {
+  if (!user) {
     return (
       <header className="bg-white shadow-md transition-all duration-300">
         <div className="w-full px-16">
@@ -96,10 +92,6 @@ const Header = () => {
             </div>
 
             {/* Icons */}
-            <button className="p-2 text-gray-500 hover:text-gray-700">
-              <Search className="h-5 w-5" />
-            </button>
-
             <Link to="/notifications" className="relative p-2 text-gray-500 hover:text-gray-700">
               <Bell className="h-5 w-5" />
               <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
