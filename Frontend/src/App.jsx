@@ -8,6 +8,8 @@ import CompetenceDetail from './pages/CompetenceDetail';
 import Chat from './pages/Chat';
 import AddCompetence from './pages/AddCompetence';
 import Notifications from './pages/Notifications';
+import AdminDashboard from './pages/AdminDashboard';
+import Dashboard from './pages/Dashboard';
 
 function App() {
   return (
@@ -24,6 +26,8 @@ function App() {
           <Route path="/chat" element={<Chat />} />
           <Route path="/add-competence" element={<AddCompetence />} />
           <Route path="/notifications" element={<Notifications />} />
+          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/dashboard" element={<Dashboard />} />
         </Routes>
       </div>
     </Router>

@@ -24,7 +24,37 @@ const useAuthStore = create(
           const response = await authService.login(credentials);
 
           if (response.success) {
-            set({ user: response.data.user, error: null });
+            let user = response.data.user;
+            
+            // Debug : Afficher les données utilisateur reçues
+            console.log('Données utilisateur reçues du backend:', user);
+            console.log('Rôle original:', user.role);
+            
+            // Normaliser le rôle pour la cohérence
+            if (user.role) {
+              const roleNormalized = user.role.toLowerCase();
+              if (roleNormalized === 'administrateur' || roleNormalized === 'admin') {
+                user.role = 'admin';
+                console.log('Rôle normalisé vers admin');
+              } else {
+                user.role = 'user';
+                console.log('Rôle normalisé vers user');
+              }
+            } else {
+              // Fallback : Définir le rôle admin pour certains emails si pas de rôle
+              const adminEmails = ['salma@gmail.com', 'admin@skillbridge.com'];
+              if (adminEmails.includes(user.email)) {
+                user.role = 'admin';
+                console.log('Rôle admin assigné par email à:', user.email);
+              } else {
+                user.role = 'user';
+                console.log('Rôle user assigné par défaut à:', user.email);
+              }
+            }
+            
+            console.log('Utilisateur final avec rôle normalisé:', user);
+            
+            set({ user, error: null });
             return { success: true };
           } else {
             const message = response.message || 'Erreur de connexion';

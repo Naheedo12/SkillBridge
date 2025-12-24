@@ -18,7 +18,7 @@ class AuthService {
   }
 
   /** 
-   * Récupère le token depuis la mémoire || localStorage 
+   * Récupère le token depuis la mémoire ou localStorage 
    */
   getToken() {
     if (!this.token) {

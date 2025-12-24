@@ -8,9 +8,23 @@ const Header = () => {
   const logout = useAuthStore(state => state.logout);
   const navigate = useNavigate();
 
+  // Debug : Afficher les données utilisateur
+  console.log('User dans Header:', user);
+  console.log('Role de l\'utilisateur:', user?.role);
+  console.log('Type du role:', typeof user?.role);
+  console.log('Est admin?', user?.role === 'admin');
+  console.log('Est Administrateur?', user?.role === 'Administrateur');
+
   const handleLogout = async () => {
     await logout();
     navigate('/');
+  };
+
+  // Fonction pour vérifier si l'utilisateur est admin
+  const isAdmin = () => {
+    if (!user?.role) return false;
+    const role = user.role.toLowerCase();
+    return role === 'admin' || role === 'administrateur';
   };
 
   // header avant connexion
@@ -76,7 +90,9 @@ const Header = () => {
             <div className="hidden md:flex space-x-8">
               <Link to="/" className="text-gray-600 hover:text-gray-900">Accueil</Link>
               <Link to="/competences" className="text-gray-600 hover:text-gray-900">Compétences</Link>
-              <Link to="/dashboard" className="text-gray-600 hover:text-gray-900">Tableau de bord</Link>
+              {isAdmin() && (
+                <Link to="/admin" className="text-gray-600 hover:text-gray-900">Tableau de bord</Link>
+              )}
               <Link to="/contact" className="text-gray-600 hover:text-gray-900">Contact</Link>
             </div>
           </nav>
@@ -101,9 +117,11 @@ const Header = () => {
               <MessageSquare className="h-5 w-5" />
             </Link>
 
-            <button className="p-2 text-gray-500 hover:text-gray-700">
-              <User className="h-5 w-5" />
-            </button>
+            {!isAdmin() && (
+              <Link to="/dashboard" className="p-2 text-gray-500 hover:text-gray-700">
+                <User className="h-5 w-5" />
+              </Link>
+            )}
 
             <Link to="/add-competence" className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700">
               Publier une compétence
