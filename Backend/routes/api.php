@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\UserController;
 
 /*
 |--------------------------------------------------------------------------
@@ -27,17 +28,12 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/profile', [AuthController::class, 'updateProfile']);
     });
 
-    Route::middleware('user')->group(function () {
-        // routes user 
-    });
-
-    // Routes admin
-    Route::middleware('admin')->prefix('admin')->group(function () {
-        // Gestion des utilisateurs
-        Route::get('/users', [App\Http\Controllers\UserController::class, 'index']);
-        Route::get('/users/{user}', [App\Http\Controllers\UserController::class, 'show']);
-        Route::put('/users/{user}', [App\Http\Controllers\UserController::class, 'update']);
-        Route::delete('/users/{user}', [App\Http\Controllers\UserController::class, 'destroy']);
-        Route::get('/users-stats', [App\Http\Controllers\UserController::class, 'stats']);
+    // Routes pour les utilisateurs
+    Route::prefix('users')->group(function () {
+        Route::get('/', [UserController::class, 'index']); 
+        Route::post('/', [UserController::class, 'store']); 
+        Route::get('/{id}', [UserController::class, 'show']); 
+        Route::put('/{id}', [UserController::class, 'update']); 
+        Route::delete('/{id}', [UserController::class, 'destroy']); 
     });
 });

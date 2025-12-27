@@ -1,54 +1,60 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Users, BookOpen, BarChart3, Plus, Search, Edit, Trash2, Eye } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import AdminStats from '../components/AdminStats';
+import useUserStore from '../stores/userStore';
+import useAuthStore from '../stores/authStore';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
+  const { user: currentUser } = useAuthStore();
+  const { users, loading, error, fetchUsers, createUser, updateUser, deleteUser } = useUserStore();
+  
   const [activeTab, setActiveTab] = useState('stats');
   const [searchTerm, setSearchTerm] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [modalType, setModalType] = useState(''); // 'add', 'edit', 'view'
   const [selectedItem, setSelectedItem] = useState(null);
 
-  // Données statiques pour les utilisateurs
-  const [users, setUsers] = useState([
-    {
-      id: 1,
-      nom: 'ELQADI',
-      prenom: 'Salma',
-      email: 'salma@gmail.com',
-      role: 'user',
-      solde_credits: 15,
-      date_inscription: '2024-01-15',
-      statut: 'actif',
-      derniere_connexion: '2024-12-20'
-    },
-    {
-      id: 2,
-      nom: 'FETTAH',
-      prenom: 'Bouchra',
-      email: 'bouchra@gmail.com',
-      role: 'user',
-      solde_credits: 8,
-      date_inscription: '2024-02-10',
-      statut: 'actif',
-      derniere_connexion: '2024-12-19'
-    },
-    {
-      id: 3,
-      nom: 'ADMIN',
-      prenom: 'Super',
-      email: 'admin@skillbridge.com',
-      role: 'admin',
-      solde_credits: 100,
-      date_inscription: '2024-01-01',
-      statut: 'actif',
-      derniere_connexion: '2024-12-24'
+  // Charger les utilisateurs au montage du composant
+  useEffect(() => {
+    if ((currentUser?.role === 'Administrateur' || currentUser?.role === 'admin') && activeTab === 'users') {
+      fetchUsers();
     }
-  ]);
+  }, [currentUser, activeTab, fetchUsers]);
+
+  // Vérifier si l'utilisateur est admin - accepter les deux formats de rôle
+  const isAdmin = currentUser?.role === 'Administrateur' || currentUser?.role === 'admin';
+  
+  if (!currentUser) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">Utilisateur non connecté</h1>
+          <p className="text-gray-600">Veuillez vous connecter pour accéder à cette page.</p>
+          <button 
+            onClick={() => navigate('/login')}
+            className="mt-4 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+          >
+            Se connecter
+          </button>
+        </div>
+      </div>
+    );
+  }
+  
+  if (!isAdmin) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">Accès non autorisé</h1>
+          <p className="text-gray-600">Vous devez être administrateur pour accéder à cette page.</p>
+        </div>
+      </div>
+    );
+  }
 
   // Données statiques pour les compétences
   const [competences, setCompetences] = useState([
@@ -108,9 +114,9 @@ const AdminDashboard = () => {
     setSelectedItem(null);
   };
 
-  const handleDeleteUser = (userId) => {
+  const handleDeleteUser = async (userId) => {
     if (window.confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?')) {
-      setUsers(users.filter(user => user.id !== userId));
+      await deleteUser(userId);
     }
   };
 
@@ -225,12 +231,25 @@ const AdminDashboard = () => {
           {activeTab === 'stats' ? (
             <AdminStats />
           ) : activeTab === 'users' ? (
-            <UsersTable 
-              users={filteredUsers} 
-              onEdit={(user) => handleOpenModal('edit', user)}
-              onView={(user) => handleOpenModal('view', user)}
-              onDelete={handleDeleteUser}
-            />
+            <>
+              {error && (
+                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
+                  {error}
+                </div>
+              )}
+              {loading ? (
+                <div className="flex justify-center py-12">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+                </div>
+              ) : (
+                <UsersTable 
+                  users={filteredUsers} 
+                  onEdit={(user) => handleOpenModal('edit', user)}
+                  onView={(user) => handleOpenModal('view', user)}
+                  onDelete={handleDeleteUser}
+                />
+              )}
+            </>
           ) : (
             <CompetencesTable 
               competences={filteredCompetences}
@@ -249,8 +268,8 @@ const AdminDashboard = () => {
           activeTab={activeTab}
           item={selectedItem}
           onClose={handleCloseModal}
-          users={users}
-          setUsers={setUsers}
+          createUser={createUser}
+          updateUser={updateUser}
           competences={competences}
           setCompetences={setCompetences}
         />
@@ -281,7 +300,7 @@ const UsersTable = ({ users, onEdit, onView, onDelete }) => (
               Crédits
             </th>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Statut
+              Inscription
             </th>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
               Actions
@@ -295,15 +314,12 @@ const UsersTable = ({ users, onEdit, onView, onDelete }) => (
                 <div className="flex items-center">
                   <div className="h-10 w-10 rounded-full bg-purple-100 flex items-center justify-center">
                     <span className="text-purple-600 font-medium">
-                      {user.prenom[0]}{user.nom[0]}
+                      {user.prenom?.[0]}{user.nom?.[0]}
                     </span>
                   </div>
                   <div className="ml-4">
                     <div className="text-sm font-medium text-gray-900">
-                      {user.prenom} {user.nom}
-                    </div>
-                    <div className="text-sm text-gray-500">
-                      Inscrit le {new Date(user.date_inscription).toLocaleDateString('fr-FR')}
+                      {user.nom_complet || `${user.prenom} ${user.nom}`}
                     </div>
                   </div>
                 </div>
@@ -313,42 +329,39 @@ const UsersTable = ({ users, onEdit, onView, onDelete }) => (
               </td>
               <td className="px-6 py-4 whitespace-nowrap">
                 <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                  user.role === 'admin' 
+                  user.role === 'Administrateur' 
                     ? 'bg-red-100 text-red-800' 
                     : 'bg-blue-100 text-blue-800'
                 }`}>
-                  {user.role === 'admin' ? 'Administrateur' : 'Utilisateur'}
+                  {user.role}
                 </span>
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                 {user.solde_credits} crédits
               </td>
-              <td className="px-6 py-4 whitespace-nowrap">
-                <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                  user.statut === 'actif' 
-                    ? 'bg-green-100 text-green-800' 
-                    : 'bg-red-100 text-red-800'
-                }`}>
-                  {user.statut === 'actif' ? 'Actif' : 'Inactif'}
-                </span>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                {new Date(user.created_at).toLocaleDateString('fr-FR')}
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => onView(user)}
                     className="text-blue-600 hover:text-blue-900"
+                    title="Voir"
                   >
                     <Eye className="h-4 w-4" />
                   </button>
                   <button
                     onClick={() => onEdit(user)}
                     className="text-indigo-600 hover:text-indigo-900"
+                    title="Modifier"
                   >
                     <Edit className="h-4 w-4" />
                   </button>
                   <button
                     onClick={() => onDelete(user.id)}
                     className="text-red-600 hover:text-red-900"
+                    title="Supprimer"
                   >
                     <Trash2 className="h-4 w-4" />
                   </button>
@@ -359,6 +372,14 @@ const UsersTable = ({ users, onEdit, onView, onDelete }) => (
         </tbody>
       </table>
     </div>
+    
+    {users.length === 0 && (
+      <div className="text-center py-12">
+        <Users className="mx-auto h-12 w-12 text-gray-400" />
+        <h3 className="mt-2 text-sm font-medium text-gray-900">Aucun utilisateur trouvé</h3>
+        <p className="mt-1 text-sm text-gray-500">Commencez par ajouter un utilisateur.</p>
+      </div>
+    )}
   </div>
 );
 
@@ -441,45 +462,68 @@ const CompetencesTable = ({ competences, onEdit, onView, onDelete }) => (
 );
 
 // Composant Modal
-const Modal = ({ type, activeTab, item, onClose, users, setUsers, competences, setCompetences }) => {
+const Modal = ({ type, activeTab, item, onClose, createUser, updateUser, competences, setCompetences }) => {
   const [formData, setFormData] = useState(
     item || (activeTab === 'users' 
-      ? { nom: '', prenom: '', email: '', role: 'user', solde_credits: 10, statut: 'actif' }
+      ? { nom: '', prenom: '', email: '', motDePasse: '', role: 'Utilisateur', solde_credits: 10, bio: '' }
       : { titre: '', description: '', categorie: '', prix_credits: 5, duree: '', niveau: 'Débutant' }
     )
   );
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setError('');
     
-    if (activeTab === 'users') {
-      if (type === 'add') {
-        const newUser = {
-          ...formData,
-          id: Math.max(...users.map(u => u.id)) + 1,
-          date_inscription: new Date().toISOString().split('T')[0],
-          derniere_connexion: new Date().toISOString().split('T')[0]
-        };
-        setUsers([...users, newUser]);
-      } else if (type === 'edit') {
-        setUsers(users.map(u => u.id === item.id ? { ...u, ...formData } : u));
+    try {
+      if (activeTab === 'users') {
+        if (type === 'add') {
+          // Nettoyer les données avant envoi
+          const cleanData = { ...formData };
+          if (cleanData.bio === '') cleanData.bio = null;
+          
+          const result = await createUser(cleanData);
+          if (result.success) {
+            onClose();
+          } else {
+            setError(result.message || 'Erreur lors de la création');
+          }
+        } else if (type === 'edit') {
+          // Nettoyer les données avant envoi
+          const cleanData = { ...formData };
+          if (cleanData.bio === '') cleanData.bio = null;
+          if (cleanData.motDePasse === '') delete cleanData.motDePasse;
+          
+          const result = await updateUser(item.id, cleanData);
+          if (result.success) {
+            onClose();
+          } else {
+            setError(result.message || 'Erreur lors de la modification');
+          }
+        }
+      } else {
+        // Gestion des compétences (statique pour l'instant)
+        if (type === 'add') {
+          const newCompetence = {
+            ...formData,
+            id: Math.max(...competences.map(c => c.id)) + 1,
+            date_creation: new Date().toISOString().split('T')[0],
+            auteur: 'Admin',
+            participants: 0
+          };
+          setCompetences([...competences, newCompetence]);
+        } else if (type === 'edit') {
+          setCompetences(competences.map(c => c.id === item.id ? { ...c, ...formData } : c));
+        }
+        onClose();
       }
-    } else {
-      if (type === 'add') {
-        const newCompetence = {
-          ...formData,
-          id: Math.max(...competences.map(c => c.id)) + 1,
-          date_creation: new Date().toISOString().split('T')[0],
-          auteur: 'Admin',
-          participants: 0
-        };
-        setCompetences([...competences, newCompetence]);
-      } else if (type === 'edit') {
-        setCompetences(competences.map(c => c.id === item.id ? { ...c, ...formData } : c));
-      }
+    } catch (err) {
+      setError('Une erreur est survenue');
+    } finally {
+      setLoading(false);
     }
-    
-    onClose();
   };
 
   const isViewMode = type === 'view';
@@ -501,6 +545,13 @@ const Modal = ({ type, activeTab, item, onClose, users, setUsers, competences, s
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Messages d'erreur */}
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+              {error}
+            </div>
+          )}
+
           {activeTab === 'users' ? (
             <>
               <div className="grid grid-cols-2 gap-4">
@@ -546,6 +597,23 @@ const Modal = ({ type, activeTab, item, onClose, users, setUsers, competences, s
                 />
               </div>
 
+              {type === 'add' && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Mot de passe
+                  </label>
+                  <input
+                    type="password"
+                    value={formData.motDePasse}
+                    onChange={(e) => setFormData({...formData, motDePasse: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    required
+                    minLength="8"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">Minimum 8 caractères</p>
+                </div>
+              )}
+
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -557,8 +625,8 @@ const Modal = ({ type, activeTab, item, onClose, users, setUsers, competences, s
                     disabled={isViewMode}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent disabled:bg-gray-100"
                   >
-                    <option value="user">Utilisateur</option>
-                    <option value="admin">Administrateur</option>
+                    <option value="Utilisateur">Utilisateur</option>
+                    <option value="Administrateur">Administrateur</option>
                   </select>
                 </div>
                 <div>
@@ -578,17 +646,16 @@ const Modal = ({ type, activeTab, item, onClose, users, setUsers, competences, s
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Statut
+                  Biographie (optionnel)
                 </label>
-                <select
-                  value={formData.statut}
-                  onChange={(e) => setFormData({...formData, statut: e.target.value})}
+                <textarea
+                  value={formData.bio || ''}
+                  onChange={(e) => setFormData({...formData, bio: e.target.value})}
                   disabled={isViewMode}
+                  rows="3"
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent disabled:bg-gray-100"
-                >
-                  <option value="actif">Actif</option>
-                  <option value="inactif">Inactif</option>
-                </select>
+                  placeholder="Décrivez brièvement l'utilisateur..."
+                />
               </div>
             </>
           ) : (
@@ -697,14 +764,16 @@ const Modal = ({ type, activeTab, item, onClose, users, setUsers, competences, s
                 type="button"
                 onClick={onClose}
                 className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+                disabled={loading}
               >
                 Annuler
               </button>
               <button
                 type="submit"
-                className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+                disabled={loading}
+                className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {type === 'add' ? 'Ajouter' : 'Modifier'}
+                {loading ? 'En cours...' : (type === 'add' ? 'Ajouter' : 'Modifier')}
               </button>
             </div>
           )}

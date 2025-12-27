@@ -16,55 +16,54 @@ const useAuthStore = create(
       setError: (error) => set({ error }),
       clearError: () => set({ error: null }),
 
+      // Fonction utilitaire pour gérer les erreurs de manière cohérente
+      handleError: (error, defaultMessage = 'Une erreur est survenue') => {
+        let message = defaultMessage;
+        
+        if (error?.response?.data?.message) {
+          message = error.response.data.message;
+        } else if (error?.message) {
+          message = error.message;
+        }
+        
+        set({ error: message });
+        return { success: false, message };
+      },
+
       // Connexion
       login: async (credentials) => {
         set({ error: null });
 
         try {
+          console.log('Login attempt with:', credentials);
           const response = await authService.login(credentials);
+          console.log('Login response:', response);
 
           if (response.success) {
             let user = response.data.user;
+            console.log('User from response:', user);
             
-            // Debug : Afficher les données utilisateur reçues
-            console.log('Données utilisateur reçues du backend:', user);
-            console.log('Rôle original:', user.role);
-            
-            // Normaliser le rôle pour la cohérence
-            if (user.role) {
-              const roleNormalized = user.role.toLowerCase();
-              if (roleNormalized === 'administrateur' || roleNormalized === 'admin') {
-                user.role = 'admin';
-                console.log('Rôle normalisé vers admin');
-              } else {
-                user.role = 'user';
-                console.log('Rôle normalisé vers user');
-              }
-            } else {
-              // Fallback : Définir le rôle admin pour certains emails si pas de rôle
-              const adminEmails = ['salma@gmail.com', 'admin@skillbridge.com'];
-              if (adminEmails.includes(user.email)) {
-                user.role = 'admin';
-                console.log('Rôle admin assigné par email à:', user.email);
-              } else {
-                user.role = 'user';
-                console.log('Rôle user assigné par défaut à:', user.email);
-              }
+            // Normalisation du rôle pour assurer la compatibilité
+            if (user.role === 'Administrateur') {
+              user.role = 'admin';
+            } else if (user.role === 'Utilisateur') {
+              user.role = 'user';
             }
             
-            console.log('Utilisateur final avec rôle normalisé:', user);
+            // Normalisation des champs
+            if (user.solde_credits) {
+              user.soldeCredits = user.solde_credits;
+            }
             
+            console.log('Setting user in store:', user);
             set({ user, error: null });
             return { success: true };
           } else {
-            const message = response.message || 'Erreur de connexion';
-            set({ error: message });
-            return { success: false, message };
+            return get().handleError(response, 'Erreur de connexion');
           }
         } catch (err) {
-          const message = 'Une erreur est survenue lors de la connexion';
-          set({ error: message });
-          return { success: false, message };
+          console.error('Login error:', err);
+          return get().handleError(err, 'Une erreur est survenue lors de la connexion');
         }
       },
 
@@ -76,17 +75,27 @@ const useAuthStore = create(
           const response = await authService.register(userData);
 
           if (response.success) {
-            set({ user: response.data.user, error: null });
+            let user = response.data.user;
+            
+            // Normalisation du rôle pour assurer la compatibilité
+            if (user.role === 'Administrateur') {
+              user.role = 'admin';
+            } else if (user.role === 'Utilisateur') {
+              user.role = 'user';
+            }
+            
+            // Normalisation des champs
+            if (user.solde_credits) {
+              user.soldeCredits = user.solde_credits;
+            }
+            
+            set({ user, error: null });
             return { success: true };
           } else {
-            const message = response.message || "Erreur d'inscription";
-            set({ error: message });
-            return { success: false, message };
+            return get().handleError(response, "Erreur d'inscription");
           }
         } catch (err) {
-          const message = "Une erreur est survenue lors de l'inscription";
-          set({ error: message });
-          return { success: false, message };
+          return get().handleError(err, "Une erreur est survenue lors de l'inscription");
         }
       },
 

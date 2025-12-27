@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { Bell, MessageSquare, User } from 'lucide-react';
+import { Bell, MessageSquare } from 'lucide-react';
 import useAuthStore from '../stores/authStore';
 import logoImage from './logo.png';
 
@@ -8,23 +8,14 @@ const Header = () => {
   const logout = useAuthStore(state => state.logout);
   const navigate = useNavigate();
 
-  // Debug : Afficher les données utilisateur
-  console.log('User dans Header:', user);
-  console.log('Role de l\'utilisateur:', user?.role);
-  console.log('Type du role:', typeof user?.role);
-  console.log('Est admin?', user?.role === 'admin');
-  console.log('Est Administrateur?', user?.role === 'Administrateur');
-
   const handleLogout = async () => {
     await logout();
     navigate('/');
   };
 
-  // Fonction pour vérifier si l'utilisateur est admin
+  // Fonction pour vérifier si l'utilisateur est admin - accepter les deux formats
   const isAdmin = () => {
-    if (!user?.role) return false;
-    const role = user.role.toLowerCase();
-    return role === 'admin' || role === 'administrateur';
+    return user?.role === 'Administrateur' || user?.role === 'admin';
   };
 
   // header avant connexion
@@ -91,7 +82,7 @@ const Header = () => {
               <Link to="/" className="text-gray-600 hover:text-gray-900">Accueil</Link>
               <Link to="/competences" className="text-gray-600 hover:text-gray-900">Compétences</Link>
               {isAdmin() && (
-                <Link to="/admin" className="text-gray-600 hover:text-gray-900">Tableau de bord</Link>
+                <Link to="/admin" className="text-gray-600 hover:text-gray-900">Admin Dashboard</Link>
               )}
               <Link to="/contact" className="text-gray-600 hover:text-gray-900">Contact</Link>
             </div>
@@ -107,7 +98,7 @@ const Header = () => {
               </span>
             </div>
 
-            {/* Icons */}
+            {/* Icônes */}
             <Link to="/notifications" className="relative p-2 text-gray-500 hover:text-gray-700">
               <Bell className="h-5 w-5" />
               <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
@@ -116,12 +107,6 @@ const Header = () => {
             <Link to="/chat" className="p-2 text-gray-500 hover:text-gray-700">
               <MessageSquare className="h-5 w-5" />
             </Link>
-
-            {!isAdmin() && (
-              <Link to="/dashboard" className="p-2 text-gray-500 hover:text-gray-700">
-                <User className="h-5 w-5" />
-              </Link>
-            )}
 
             <Link to="/add-competence" className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700">
               Publier une compétence

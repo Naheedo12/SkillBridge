@@ -4,7 +4,6 @@ namespace App\Policies;
 
 use App\Models\Competence;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
 
 class CompetencePolicy
 {
@@ -13,7 +12,7 @@ class CompetencePolicy
      */
     public function viewAny(User $user): bool
     {
-        //
+        return true; 
     }
 
     /**
@@ -21,7 +20,7 @@ class CompetencePolicy
      */
     public function view(User $user, Competence $competence): bool
     {
-        //
+        return true; 
     }
 
     /**
@@ -29,7 +28,7 @@ class CompetencePolicy
      */
     public function create(User $user): bool
     {
-        //
+        return true; 
     }
 
     /**
@@ -37,7 +36,7 @@ class CompetencePolicy
      */
     public function update(User $user, Competence $competence): bool
     {
-        //
+        return $user->id === $competence->user_id || $user->role === 'Administrateur';
     }
 
     /**
@@ -45,22 +44,6 @@ class CompetencePolicy
      */
     public function delete(User $user, Competence $competence): bool
     {
-        //
-    }
-
-    /**
-     * Determine whether the user can restore the model.
-     */
-    public function restore(User $user, Competence $competence): bool
-    {
-        //
-    }
-
-    /**
-     * Determine whether the user can permanently delete the model.
-     */
-    public function forceDelete(User $user, Competence $competence): bool
-    {
-        //
+        return $user->id === $competence->user_id || $user->role === 'Administrateur';
     }
 }

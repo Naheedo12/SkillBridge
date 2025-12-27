@@ -3,6 +3,8 @@ const API_BASE_URL = 'http://localhost:8000/api';
 class AuthService {
   constructor() {
     this.token = null;
+    this.maxRetries = 3; // Nombre maximum de tentatives
+    this.retryDelay = 1000; // Délai entre les tentatives (ms)
   }
 
   /** 
@@ -28,9 +30,9 @@ class AuthService {
   }
 
   /** 
-   * Fonction générique pour appeler l'API 
+   * Fonction générique pour appeler l'API avec retry automatique
    */
-  async request(url, method = 'GET', data = null) {
+  async request(url, method = 'GET', data = null, retryCount = 0) {
     const token = this.getToken();
 
     const options = {
@@ -45,7 +47,9 @@ class AuthService {
     if (token) options.headers.Authorization = `Bearer ${token}`;
 
     try {
+      console.log(`API Request: ${method} ${API_BASE_URL}${url}`, data);
       const response = await fetch(`${API_BASE_URL}${url}`, options);
+      console.log(`API Response status: ${response.status}`);
 
       if (!response.ok) {
         if (response.status === 401) {
@@ -53,14 +57,46 @@ class AuthService {
           this.setToken(null);
           throw new Error('Session expirée');
         }
+        
+        // Pour les erreurs de validation (422), récupérer les détails
+        if (response.status === 422) {
+          const errorData = await response.json();
+          console.log('Erreurs de validation:', errorData);
+          const errorMessage = errorData.errors 
+            ? Object.values(errorData.errors).flat().join(', ')
+            : errorData.message || 'Erreur de validation';
+          throw new Error(errorMessage);
+        }
+        
+        // Retry pour les erreurs serveur (5xx) ou réseau
+        if (response.status >= 500 && retryCount < this.maxRetries) {
+          console.warn(`Tentative ${retryCount + 1}/${this.maxRetries} échouée, retry dans ${this.retryDelay}ms`);
+          await this.delay(this.retryDelay);
+          return this.request(url, method, data, retryCount + 1);
+        }
+        
         throw new Error(`Erreur HTTP: ${response.status}`);
       }
 
-      return await response.json();
+      const result = await response.json();
+      console.log('API Response data:', result);
+      return result;
     } catch (error) {
+      // Retry pour les erreurs réseau
+      if (error.name === 'TypeError' && retryCount < this.maxRetries) {
+        console.warn(`Erreur réseau, tentative ${retryCount + 1}/${this.maxRetries}`);
+        await this.delay(this.retryDelay);
+        return this.request(url, method, data, retryCount + 1);
+      }
+      
       console.error('Erreur API:', error);
       throw error;
     }
+  }
+
+  /** Fonction utilitaire pour les délais */
+  delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
   }
 
   /** Connexion */
@@ -100,6 +136,31 @@ class AuthService {
   /** Récupérer le profil de l'utilisateur */
   async getProfile() {
     return this.request('/auth/me');
+  }
+
+  /** Récupérer tous les utilisateurs (Admin) */
+  async getUsers() {
+    return this.request('/users');
+  }
+
+  /** Récupérer un utilisateur spécifique */
+  async getUser(id) {
+    return this.request(`/users/${id}`);
+  }
+
+  /** Créer un utilisateur (Admin) */
+  async createUser(userData) {
+    return this.request('/users', 'POST', userData);
+  }
+
+  /** Mettre à jour un utilisateur */
+  async updateUser(id, userData) {
+    return this.request(`/users/${id}`, 'PUT', userData);
+  }
+
+  /** Supprimer un utilisateur (Admin) */
+  async deleteUser(id) {
+    return this.request(`/users/${id}`, 'DELETE');
   }
 
   /** Vérifie si un utilisateur est connecté */

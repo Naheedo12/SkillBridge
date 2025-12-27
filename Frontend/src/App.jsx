@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Home from './pages/Home';
@@ -10,8 +10,11 @@ import AddCompetence from './pages/AddCompetence';
 import Notifications from './pages/Notifications';
 import AdminDashboard from './pages/AdminDashboard';
 import Dashboard from './pages/Dashboard';
+import useAuthStore from './stores/authStore';
 
 function App() {
+  const { isAuthenticated, user } = useAuthStore();
+
   return (
     <Router>
       <div className="App">
@@ -28,6 +31,13 @@ function App() {
           <Route path="/notifications" element={<Notifications />} />
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          
+          {/* Route pour le profil de l'utilisateur courant */}
+          <Route path="/profile" element={
+            isAuthenticated() ? 
+              <Navigate to="/admin" /> : 
+              <Navigate to="/login" />
+          } />
         </Routes>
       </div>
     </Router>
