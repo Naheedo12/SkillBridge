@@ -12,8 +12,9 @@ return new class extends Migration
             $table->id();
             $table->string('titre');
             $table->string('categorie');
-            $table->enum('niveau', ['debutant', 'intermediaire', 'avance', 'expert']);
+            $table->enum('niveau', ['debutant', 'intermediaire', 'avance']);
             $table->text('description');
+            $table->string('image')->nullable();
             $table->boolean('disponibilite')->default(true);
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->timestamps();

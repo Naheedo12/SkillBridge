@@ -15,6 +15,7 @@ class Competence extends Model
         'niveau',
         'description',
         'disponibilite',
+        'image',
         'user_id',
     ];
 
