@@ -1,74 +1,115 @@
 import { useParams, Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import competenceService from '../services/competenceService';
 
 const CompetenceDetail = () => {
   const { id } = useParams();
+  const [competence, setCompetence] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // Données simulées
-  const competence = {
-    id: 1,
-    category: "Informatique",
-    level: "Intermédiaire",
-    title: "Développement Web avec React",
-    instructor: "Salma ELQADI",
-    avatar: "https://ui-avatars.com/api/?name=Salma+ELQADI&background=9810fa&color=fff",
-    rating: 4.8,
-    reviewCount: 24,
-    exchangeCount: 28,
-    credits: 2,
-    description: "Je propose des cours complets de développement web avec React. Vous apprendrez les bases de React, les hooks, la gestion d'état avec Redux, et comment créer des applications web modernes et performantes. Mes cours sont adaptés aux personnes ayant déjà des bases en JavaScript.",
-    duration: "8 sessions de 2h",
-    availability: "Lundi, Mercredi, Vendredi - 19h à 21h",
-    whatYouLearn: [
-      "Introduction à React et JSX",
-      "Composants et Props",
-      "Routing avec React Router",
-      "Intégration d'APIs"
-    ],
-    syllabus: [
-      {
-        title: "Introduction à React",
-        duration: "2h",
-        topics: ["JSX", "Composants", "Props"]
-      },
-      {
-        title: "Hooks et gestion d'état",
-        duration: "2h",
-        topics: ["useState", "useEffect", "Context API"]
-      },
-      {
-        title: "Intégration API",
-        duration: "2h",
-        topics: ["Fetch", "Axios", "Gestion des erreurs"]
-      },
-      {
-        title: "Projet final",
-        duration: "2h",
-        topics: ["Application complète", "Déploiement"]
+  // Charger les données de la compétence
+  useEffect(() => {
+    const fetchCompetence = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const response = await competenceService.getCompetenceById(id);
+        if (response?.success) {
+          setCompetence(response.data);
+        } else {
+          setError('Compétence non trouvée');
+        }
+      } catch (error) {
+        console.error('Erreur lors du chargement de la compétence:', error);
+        setError('Erreur lors du chargement de la compétence');
+      } finally {
+        setLoading(false);
       }
-    ],
-    reviews: [
-      {
-        name: "Khadija ELQADI",
-        time: "Il y a 2 semaines",
-        rating: 5,
-        comment: "Excellente formatrice ! Marie explique très bien et prend le temps de répondre à toutes les questions. J'ai beaucoup progressé en React grâce à elle."
-      },
-      {
-        name: "Bouchra Fettah",
-        time: "Il y a 1 mois",
-        rating: 5,
-        comment: "Cours très structurés et pratiques. Les exemples concrets m'ont vraiment aidé à comprendre."
-      },
-      {
-        name: "Amina ELQADI",
-        time: "Il y a 1 mois",
-        rating: 4,
-        comment: "Très bon cours, peut-être un peu rapide pour les débutants complets en JavaScript."
-      }
-    ]
+    };
+
+    if (id) {
+      fetchCompetence();
+    }
+  }, [id]);
+
+  // Avatar par défaut
+  const getDefaultAvatar = (nom, prenom) => {
+    const name = `${prenom || ''} ${nom || ''}`.trim() || 'User';
+    return `https://ui-avatars.com/api/?name=${encodeURIComponent(
+      name
+    )}&background=9810fa&color=fff`;
   };
+
+  // Image par défaut selon la catégorie
+  const getDefaultImage = (categorie) => {
+    const imagesByCategory = {
+      'Programmation': 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=800&h=600&fit=crop',
+      'Design': 'https://images.unsplash.com/photo-1561070791-2526d30994b5?w=800&h=600&fit=crop',
+      'Musique': 'https://images.unsplash.com/photo-1510915361894-db8b60106cb1?w=800&h=600&fit=crop',
+      'Cuisine': 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=800&h=600&fit=crop',
+      'Art': 'https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=800&h=600&fit=crop',
+      'Sport': 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&h=600&fit=crop',
+      'Sciences': 'https://images.unsplash.com/photo-1532094349884-543bc11b234d?w=800&h=600&fit=crop',
+      'Bricolage': 'https://images.unsplash.com/photo-1581244277943-fe4a9c777189?w=800&h=600&fit=crop',
+      'Jardinage': 'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=800&h=600&fit=crop',
+      'Informatique': 'https://images.unsplash.com/photo-1518432031352-d6fc5c10da5a?w=800&h=600&fit=crop'
+    };
+    
+    return imagesByCategory[categorie] || 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=800&h=600&fit=crop';
+  };
+
+  // Format du niveau
+  const formatLevel = (niveau) => {
+    const levelMap = {
+      debutant: 'Débutant',
+      intermediaire: 'Intermédiaire',
+      avance: 'Avancé',
+      expert: 'Expert',
+    };
+    return levelMap[niveau] || niveau || 'Non spécifié';
+  };
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Header />
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">Chargement de la compétence...</p>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  // Error state
+  if (error || !competence) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Header />
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="text-center">
+            <div className="text-6xl mb-4">😕</div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Compétence non trouvée</h2>
+            <p className="text-gray-600 mb-6">{error}</p>
+            <Link 
+              to="/competences" 
+              className="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition-colors"
+            >
+              Retour aux compétences
+            </Link>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -89,16 +130,16 @@ const CompetenceDetail = () => {
               {/* Badges */}
               <div className="flex items-center gap-3 mb-4">
                 <span className="bg-white/20 text-white px-3 py-1 rounded-full text-sm font-medium font-['Inter']">
-                  {competence.category}
+                  {competence.categorie || 'Non catégorisé'}
                 </span>
                 <span className="bg-white/20 text-white px-3 py-1 rounded-full text-sm font-medium font-['Inter']">
-                  {competence.level}
+                  {formatLevel(competence.niveau)}
                 </span>
               </div>
 
               {/* Titre */}
               <h1 className="text-4xl font-bold text-white font-['Inter'] mb-4">
-                {competence.title}
+                {competence.titre}
               </h1>
 
               {/* Rating et stats */}
@@ -107,26 +148,34 @@ const CompetenceDetail = () => {
                   <svg className="w-5 h-5 text-yellow-400 fill-current" viewBox="0 0 20 20">
                     <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
                   </svg>
-                  <span className="font-semibold">{competence.rating}</span>
-                  <span className="text-white/80">({competence.reviewCount} avis)</span>
+                  <span className="font-semibold">4.8</span>
+                  <span className="text-white/80">(24 avis)</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z" />
                   </svg>
-                  <span className="text-white/80">{competence.exchangeCount} échanges réalisés</span>
+                  <span className="text-white/80">Disponible pour échange</span>
                 </div>
               </div>
 
               {/* Instructeur */}
               <div className="flex items-center gap-4 mb-6">
                 <img 
-                  src={competence.avatar} 
-                  alt={competence.instructor}
+                  src={
+                    competence.user?.photo ||
+                    getDefaultAvatar(competence.user?.nom, competence.user?.prenom)
+                  }
+                  alt={`${competence.user?.prenom || ''} ${competence.user?.nom || ''}`.trim()}
                   className="w-12 h-12 rounded-full"
+                  onError={(e) => {
+                    e.target.src = getDefaultAvatar(competence.user?.nom, competence.user?.prenom);
+                  }}
                 />
                 <div>
-                  <p className="font-semibold text-white font-['Inter']">{competence.instructor}</p>
+                  <p className="font-semibold text-white font-['Inter']">
+                    {`${competence.user?.prenom || ''} ${competence.user?.nom || ''}`.trim() || 'Instructeur'}
+                  </p>
                 </div>
               </div>
 
@@ -141,7 +190,7 @@ const CompetenceDetail = () => {
               <div className="bg-white rounded-xl p-6 shadow-lg">
                 <div className="text-center mb-6">
                   <div className="text-3xl font-bold text-blue-600 font-['Inter'] mb-2">
-                    {competence.credits} crédits
+                    2 crédits
                   </div>
                   <p className="text-gray-600 font-['Inter'] text-sm">Coût de l'échange</p>
                 </div>
@@ -167,7 +216,9 @@ const CompetenceDetail = () => {
                     </svg>
                     <div>
                       <p className="font-semibold text-gray-900 font-['Inter']">Disponibilité</p>
-                      <p className="text-gray-600 font-['Inter']">{competence.availability}</p>
+                      <p className="text-gray-600 font-['Inter']">
+                        {competence.disponibilite ? 'Disponible' : 'Non disponible'}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -187,123 +238,77 @@ const CompetenceDetail = () => {
               Description
             </h2>
             <p className="text-gray-700 font-['Inter'] leading-relaxed mb-8">
-              {competence.description}
+              {competence.description || 'Aucune description disponible pour cette compétence.'}
             </p>
             
-            {/* Durée, Sessions, Prérequis */}
+            {/* Image de la compétence */}
+            {(competence.image || competence.categorie) && (
+              <div className="mb-8">
+                <img
+                  src={competence.image || getDefaultImage(competence.categorie)}
+                  alt={competence.titre}
+                  className="w-full h-64 object-cover rounded-lg"
+                  onError={(e) => {
+                    e.target.src = getDefaultImage(competence.categorie);
+                  }}
+                />
+              </div>
+            )}
+            
+            {/* Informations supplémentaires */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6 border-t border-gray-200">
               <div>
-                <p className="font-semibold text-gray-900 font-['Inter'] mb-2">Durée :</p>
-                <p className="text-gray-600 font-['Inter']">8 heures</p>
+                <p className="font-semibold text-gray-900 font-['Inter'] mb-2">Catégorie :</p>
+                <p className="text-gray-600 font-['Inter']">{competence.categorie || 'Non spécifiée'}</p>
               </div>
               <div>
-                <p className="font-semibold text-gray-900 font-['Inter'] mb-2">Sessions :</p>
-                <p className="text-gray-600 font-['Inter']">4 sessions</p>
+                <p className="font-semibold text-gray-900 font-['Inter'] mb-2">Niveau :</p>
+                <p className="text-gray-600 font-['Inter']">{formatLevel(competence.niveau)}</p>
               </div>
               <div>
-                <p className="font-semibold text-gray-900 font-['Inter'] mb-2">Prérequis :</p>
-                <p className="text-gray-600 font-['Inter']">Connaissances de base en JavaScript et HTML/CSS</p>
+                <p className="font-semibold text-gray-900 font-['Inter'] mb-2">Disponibilité :</p>
+                <p className="text-gray-600 font-['Inter']">
+                  {competence.disponibilite ? 'Disponible' : 'Non disponible'}
+                </p>
               </div>
             </div>
           </div>
 
-          {/* Ce que vous allez apprendre */}
+          {/* Informations sur le formateur */}
           <div className="bg-white rounded-xl p-8 shadow-sm">
             <h2 className="text-2xl font-bold text-gray-900 font-['Inter'] mb-6">
-              Ce que vous allez apprendre
+              À propos du formateur
             </h2>
-            <ul className="space-y-3">
-              {competence.whatYouLearn.map((item, index) => (
-                <li key={index} className="flex items-start gap-3">
-                  <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center mt-0.5 shrink-0">
-                    <svg className="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+            <div className="flex items-start gap-6">
+              <img 
+                src={
+                  competence.user?.photo ||
+                  getDefaultAvatar(competence.user?.nom, competence.user?.prenom)
+                }
+                alt={`${competence.user?.prenom || ''} ${competence.user?.nom || ''}`.trim()}
+                className="w-20 h-20 rounded-full"
+                onError={(e) => {
+                  e.target.src = getDefaultAvatar(competence.user?.nom, competence.user?.prenom);
+                }}
+              />
+              <div className="flex-1">
+                <h3 className="text-xl font-semibold text-gray-900 font-['Inter'] mb-2">
+                  {`${competence.user?.prenom || ''} ${competence.user?.nom || ''}`.trim() || 'Instructeur'}
+                </h3>
+                <p className="text-gray-600 font-['Inter'] mb-4">
+                  {competence.user?.bio || 'Formateur expérimenté dans le domaine.'}
+                </p>
+                <div className="flex items-center gap-4 text-sm text-gray-600">
+                  <div className="flex items-center gap-1">
+                    <svg className="w-4 h-4 text-yellow-400 fill-current" viewBox="0 0 20 20">
+                      <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
                     </svg>
+                    <span>4.8 (24 avis)</span>
                   </div>
-                  <span className="text-gray-700 font-['Inter']">{item}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Programme du cours */}
-          <div className="bg-white rounded-xl p-8 shadow-sm">
-            <h2 className="text-2xl font-bold text-gray-900 font-['Inter'] mb-6">
-              Programme du cours
-            </h2>
-            <div className="space-y-4">
-              {competence.syllabus.map((module, index) => (
-                <div key={index} className="border border-gray-200 rounded-lg p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-semibold text-gray-900 font-['Inter']">
-                      {index + 1}. {module.title}
-                    </h3>
-                    <span className="text-sm text-gray-600 font-['Inter']">{module.duration}</span>
-                  </div>
-                  <ul className="space-y-2">
-                    {module.topics.map((topic, topicIndex) => (
-                      <li key={topicIndex} className="text-gray-600 font-['Inter'] flex items-center gap-2">
-                        <span className="w-1.5 h-1.5 bg-gray-400 rounded-full"></span>
-                        {topic}
-                      </li>
-                    ))}
-                  </ul>
+                  <span>•</span>
+                  <span>Membre depuis {new Date(competence.user?.created_at || competence.created_at).getFullYear()}</span>
                 </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Évaluations */}
-          <div className="bg-white rounded-xl p-8 shadow-sm">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-gray-900 font-['Inter']">
-                Évaluations
-              </h2>
-              <div className="flex items-center gap-2">
-                <svg className="w-6 h-6 text-yellow-400 fill-current" viewBox="0 0 20 20">
-                  <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
-                </svg>
-                <span className="text-xl font-bold text-gray-900 font-['Inter']">{competence.rating}</span>
-                <span className="text-gray-600 font-['Inter']">({competence.reviewCount} avis)</span>
               </div>
-            </div>
-
-            <div className="space-y-6">
-              {competence.reviews.map((review, index) => (
-                <div key={index} className="border-b border-gray-200 pb-6 last:border-b-0">
-                  <div className="flex items-start gap-4">
-                    <img 
-                      src={`https://ui-avatars.com/api/?name=${review.name}&background=9810fa&color=fff`}
-                      alt={review.name}
-                      className="w-12 h-12 rounded-full"
-                    />
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        <h4 className="font-semibold text-gray-900 font-['Inter']">{review.name}</h4>
-                        <span className="text-sm text-gray-500 font-['Inter']">{review.time}</span>
-                      </div>
-                      <div className="flex items-center gap-1 mb-3">
-                        {[...Array(5)].map((_, i) => (
-                          <svg 
-                            key={i} 
-                            className={`w-4 h-4 ${i < review.rating ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} 
-                            viewBox="0 0 20 20"
-                          >
-                            <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
-                          </svg>
-                        ))}
-                      </div>
-                      <p className="text-gray-700 font-['Inter'] leading-relaxed">{review.comment}</p>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div className="text-center mt-8">
-              <button className="px-6 py-3 border border-gray-300 rounded-lg text-gray-600 font-['Inter'] hover:text-gray-800 hover:border-gray-400 transition-colors">
-                Voir tous les avis
-              </button>
             </div>
           </div>
         </div>
