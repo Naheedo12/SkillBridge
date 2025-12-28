@@ -163,6 +163,14 @@ class AuthService {
     return this.request(`/users/${id}`, 'DELETE');
   }
 
+  /** Mettre à jour le profil de l'utilisateur connecté */
+  async updateProfile(profileData) {
+    console.log('updateProfile called with:', profileData);
+    const result = await this.request('/auth/profile', 'PUT', profileData);
+    console.log('updateProfile result:', result);
+    return result;
+  }
+
   /** Vérifie si un utilisateur est connecté */
   isAuthenticated() {
     return this.getToken() !== null;

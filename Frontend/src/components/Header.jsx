@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { Bell, MessageSquare } from 'lucide-react';
+import { Bell, MessageSquare, User } from 'lucide-react';
 import useAuthStore from '../stores/authStore';
 import logoImage from './logo.png';
 
@@ -107,6 +107,22 @@ const Header = () => {
             <Link to="/chat" className="p-2 text-gray-500 hover:text-gray-700">
               <MessageSquare className="h-5 w-5" />
             </Link>
+
+            {/* Icône de profil utilisateur avec avatar - seulement pour les utilisateurs normaux */}
+            {!isAdmin() && (
+              <Link 
+                to="/dashboard" 
+                className="flex items-center gap-2 px-3 py-2 text-gray-600 hover:text-purple-600 rounded-lg hover:bg-purple-50 transition-all duration-200 border border-transparent hover:border-purple-200"
+                title="Mon Dashboard"
+              >
+                <div className="h-8 w-8 rounded-full bg-purple-100 flex items-center justify-center">
+                  <span className="text-purple-600 font-medium text-sm">
+                    {user?.prenom?.[0]}{user?.nom?.[0]}
+                  </span>
+                </div>
+                <User className="h-4 w-4" />
+              </Link>
+            )}
 
             <Link to="/add-competence" className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700">
               Publier une compétence

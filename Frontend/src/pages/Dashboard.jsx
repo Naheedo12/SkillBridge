@@ -7,10 +7,11 @@ import Footer from '../components/Footer';
 
 const Dashboard = () => {
   const user = useAuthStore(state => state.user);
+  const updateProfile = useAuthStore(state => state.updateProfile);
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('overview');
   const [showModal, setShowModal] = useState(false);
-  const [modalType, setModalType] = useState(''); // 'view', 'add', 'edit'
+  const [modalType, setModalType] = useState(''); // 'view', 'add', 'edit', 'profile'
   const [selectedCompetence, setSelectedCompetence] = useState(null);
 
   // Données statiques pour la démonstration
@@ -94,6 +95,14 @@ const Dashboard = () => {
       ));
     }
     handleCloseModal();
+  };
+
+  const handleSaveProfile = async (profileData) => {
+    const result = await updateProfile(profileData);
+    if (result.success) {
+      handleCloseModal();
+    }
+    return result;
   };
 
   const competencesAchetees = [
@@ -207,6 +216,7 @@ const Dashboard = () => {
               userStats={userStats} 
               activitesRecentes={activitesRecentes}
               user={user}
+              onEditProfile={() => handleOpenModal('profile')}
             />
           )}
           {activeTab === 'mes-competences' && (
@@ -224,8 +234,15 @@ const Dashboard = () => {
         </div>
       </section>
 
-      {/* Modal pour les compétences */}
-      {showModal && (
+      {/* Modal pour les compétences et le profil */}
+      {showModal && modalType === 'profile' && (
+        <ProfileModal
+          user={user}
+          onClose={handleCloseModal}
+          onSave={handleSaveProfile}
+        />
+      )}
+      {showModal && modalType !== 'profile' && (
         <CompetenceModal
           type={modalType}
           competence={selectedCompetence}
@@ -240,7 +257,7 @@ const Dashboard = () => {
 };
 
 // Composant Vue d'ensemble
-const OverviewTab = ({ userStats, activitesRecentes, user }) => (
+const OverviewTab = ({ userStats, activitesRecentes, user, onEditProfile }) => (
   <div className="space-y-6">
     {/* Statistiques */}
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -304,7 +321,16 @@ const OverviewTab = ({ userStats, activitesRecentes, user }) => (
 
       {/* Profil et progression */}
       <div className="bg-white rounded-lg shadow-sm p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Mon Profil</h3>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold text-gray-900">Mon Profil</h3>
+          <button
+            onClick={onEditProfile}
+            className="flex items-center gap-2 px-3 py-2 text-sm bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors duration-200"
+          >
+            <Edit className="h-4 w-4" />
+            Modifier
+          </button>
+        </div>
         <div className="space-y-4">
           <div className="flex items-center gap-4">
             <div className="h-16 w-16 rounded-full bg-purple-100 flex items-center justify-center">
@@ -312,12 +338,19 @@ const OverviewTab = ({ userStats, activitesRecentes, user }) => (
                 {user?.prenom?.[0]}{user?.nom?.[0]}
               </span>
             </div>
-            <div>
+            <div className="flex-1">
               <h4 className="font-medium text-gray-900">{user?.prenom} {user?.nom}</h4>
               <p className="text-sm text-gray-500">{user?.email}</p>
               <p className="text-sm text-purple-600">Membre depuis {new Date().getFullYear()}</p>
             </div>
           </div>
+          
+          {user?.bio && (
+            <div className="border-t pt-4">
+              <h5 className="text-sm font-medium text-gray-700 mb-2">À propos</h5>
+              <p className="text-sm text-gray-600">{user.bio}</p>
+            </div>
+          )}
           
           <div className="border-t pt-4">
             <div className="grid grid-cols-2 gap-4 text-center">
@@ -662,6 +695,131 @@ const CompetenceModal = ({ type, competence, onClose, onSave }) => {
                 {type === 'add' ? 'Ajouter' : 'Modifier'}
               </button>
             )}
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+// Composant Modal pour le profil utilisateur
+const ProfileModal = ({ user, onClose, onSave }) => {
+  const [formData, setFormData] = useState({
+    nom: user?.nom || '',
+    prenom: user?.prenom || '',
+    bio: user?.bio || ''
+  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+    
+    try {
+      // Nettoyer les données avant envoi
+      const cleanData = { ...formData };
+      if (cleanData.bio === '') cleanData.bio = null;
+      
+      const result = await onSave(cleanData);
+      if (!result.success) {
+        setError(result.message || 'Erreur lors de la mise à jour');
+      }
+    } catch (err) {
+      setError('Une erreur est survenue');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-xl font-semibold text-gray-900">
+            Modifier mon profil
+          </h2>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-600"
+          >
+            <X className="h-6 w-6" />
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Messages d'erreur */}
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+              {error}
+            </div>
+          )}
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Prénom
+            </label>
+            <input
+              type="text"
+              value={formData.prenom}
+              onChange={(e) => setFormData({...formData, prenom: e.target.value})}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Nom
+            </label>
+            <input
+              type="text"
+              value={formData.nom}
+              onChange={(e) => setFormData({...formData, nom: e.target.value})}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Biographie (optionnel)
+            </label>
+            <textarea
+              value={formData.bio || ''}
+              onChange={(e) => setFormData({...formData, bio: e.target.value})}
+              rows="4"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              placeholder="Parlez-nous de vous..."
+            />
+          </div>
+
+          <div className="bg-gray-50 rounded-lg p-4">
+            <h4 className="font-medium text-gray-900 mb-2">Informations non modifiables</h4>
+            <div className="space-y-1 text-sm text-gray-600">
+              <p><span className="font-medium">Email:</span> {user?.email}</p>
+              <p><span className="font-medium">Rôle:</span> {user?.role === 'admin' ? 'Administrateur' : 'Utilisateur'}</p>
+              <p><span className="font-medium">Crédits:</span> {user?.solde_credits || 0}</p>
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-3 pt-4">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+              disabled={loading}
+            >
+              Annuler
+            </button>
+            <button
+              type="submit"
+              disabled={loading}
+              className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {loading ? 'Mise à jour...' : 'Sauvegarder'}
+            </button>
           </div>
         </form>
       </div>

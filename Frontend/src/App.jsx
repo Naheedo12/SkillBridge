@@ -30,7 +30,11 @@ function App() {
           <Route path="/add-competence" element={<AddCompetence />} />
           <Route path="/notifications" element={<Notifications />} />
           <Route path="/admin" element={<AdminDashboard />} />
-          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/dashboard" element={
+            isAuthenticated() ? 
+              <Dashboard /> : 
+              <Navigate to="/login" />
+          } />
           
           {/* Route pour le profil de l'utilisateur courant */}
           <Route path="/profile" element={

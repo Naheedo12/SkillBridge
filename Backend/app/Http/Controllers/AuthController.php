@@ -180,14 +180,38 @@ class AuthController extends Controller
         try {
             $user = $request->user();
 
-            $request->validate([
+            $validatedData = $request->validate([
                 'nom' => 'sometimes|string|max:255',
                 'prenom' => 'sometimes|string|max:255',
-                'bio' => 'sometimes|string|max:1000',
+                'bio' => 'nullable|string|max:1000',
                 'photo' => 'sometimes|string|max:255',
             ]);
 
-            $user->update($request->only(['nom', 'prenom', 'bio', 'photo']));
+            // Nettoyer les données - convertir chaînes vides en null pour bio
+            if (isset($validatedData['bio']) && $validatedData['bio'] === '') {
+                $validatedData['bio'] = null;
+            }
+
+            // Mettre à jour seulement les champs fournis
+            $updateData = [];
+            if (isset($validatedData['nom'])) {
+                $updateData['nom'] = $validatedData['nom'];
+            }
+            if (isset($validatedData['prenom'])) {
+                $updateData['prenom'] = $validatedData['prenom'];
+            }
+            if (array_key_exists('bio', $validatedData)) {
+                $updateData['bio'] = $validatedData['bio'];
+            }
+            if (isset($validatedData['photo'])) {
+                $updateData['photo'] = $validatedData['photo'];
+            }
+
+            // Effectuer la mise à jour
+            $user->update($updateData);
+
+            // Recharger l'utilisateur depuis la base de données
+            $user->refresh();
 
             return response()->json([
                 'success' => true,
@@ -207,6 +231,12 @@ class AuthController extends Controller
                 ]
             ], 200);
 
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur de validation',
+                'errors' => $e->errors()
+            ], 422);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,

@@ -111,6 +111,38 @@ const useAuthStore = create(
       },
 
       // Mettre à jour le profil utilisateur
+      updateProfile: async (profileData) => {
+        set({ error: null });
+
+        try {
+          const response = await authService.updateProfile(profileData);
+
+          if (response.success) {
+            let updatedUser = response.data.user;
+            
+            // Normalisation du rôle pour assurer la compatibilité
+            if (updatedUser.role === 'Administrateur') {
+              updatedUser.role = 'admin';
+            } else if (updatedUser.role === 'Utilisateur') {
+              updatedUser.role = 'user';
+            }
+            
+            // Normalisation des champs
+            if (updatedUser.solde_credits) {
+              updatedUser.soldeCredits = updatedUser.solde_credits;
+            }
+            
+            set({ user: updatedUser, error: null });
+            return { success: true, data: updatedUser };
+          } else {
+            return get().handleError(response, 'Erreur lors de la mise à jour du profil');
+          }
+        } catch (err) {
+          return get().handleError(err, 'Une erreur est survenue lors de la mise à jour du profil');
+        }
+      },
+
+      // Mettre à jour le profil utilisateur
       updateUser: (userData) => set({ user: userData }),
 
       // Réinitialiser tout
