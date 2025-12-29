@@ -11,6 +11,10 @@ const useAuthStore = create(
 
       // Getter
       isAuthenticated: () => !!get().user,
+      isAdmin: () => {
+        const user = get().user;
+        return user?.role === 'Administrateur' || user?.role === 'admin';
+      },
 
       // Actions pour gérer les erreurs
       setError: (error) => set({ error }),
@@ -43,17 +47,8 @@ const useAuthStore = create(
             let user = response.data.user;
             console.log('User from response:', user);
             
-            // Normalisation du rôle pour assurer la compatibilité
-            if (user.role === 'Administrateur') {
-              user.role = 'admin';
-            } else if (user.role === 'Utilisateur') {
-              user.role = 'user';
-            }
-            
-            // Normalisation des champs
-            if (user.solde_credits) {
-              user.soldeCredits = user.solde_credits;
-            }
+            // Garder le rôle tel qu'il vient du backend
+            // Ne pas normaliser pour garder la cohérence
             
             console.log('Setting user in store:', user);
             set({ user, error: null });
@@ -77,18 +72,7 @@ const useAuthStore = create(
           if (response.success) {
             let user = response.data.user;
             
-            // Normalisation du rôle pour assurer la compatibilité
-            if (user.role === 'Administrateur') {
-              user.role = 'admin';
-            } else if (user.role === 'Utilisateur') {
-              user.role = 'user';
-            }
-            
-            // Normalisation des champs
-            if (user.solde_credits) {
-              user.soldeCredits = user.solde_credits;
-            }
-            
+            // Garder le rôle tel qu'il vient du backend
             set({ user, error: null });
             return { success: true };
           } else {
@@ -120,18 +104,6 @@ const useAuthStore = create(
           if (response.success) {
             let updatedUser = response.data.user;
             
-            // Normalisation du rôle pour assurer la compatibilité
-            if (updatedUser.role === 'Administrateur') {
-              updatedUser.role = 'admin';
-            } else if (updatedUser.role === 'Utilisateur') {
-              updatedUser.role = 'user';
-            }
-            
-            // Normalisation des champs
-            if (updatedUser.solde_credits) {
-              updatedUser.soldeCredits = updatedUser.solde_credits;
-            }
-            
             set({ user: updatedUser, error: null });
             return { success: true, data: updatedUser };
           } else {
@@ -142,15 +114,12 @@ const useAuthStore = create(
         }
       },
 
-      // Mettre à jour le profil utilisateur
-      updateUser: (userData) => set({ user: userData }),
-
       // Réinitialiser tout
       reset: () => set({ user: null, error: null }),
     }),
     {
       name: 'auth-storage',
-      partialize: (state) => ({ user: state.user }), // ne conserve que l'utilisateur
+      partialize: (state) => ({ user: state.user }),
     }
   )
 );

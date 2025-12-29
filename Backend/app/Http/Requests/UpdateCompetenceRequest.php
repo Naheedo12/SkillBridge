@@ -3,17 +3,15 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Http\Exceptions\HttpResponseException;
-use Illuminate\Contracts\Validation\Validator;
 
-class CompetenceUpdateRequest extends FormRequest
+class UpdateCompetenceRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        return true; 
+        return auth()->check(); // Seuls les utilisateurs connectés peuvent modifier
     }
 
     /**
@@ -22,12 +20,11 @@ class CompetenceUpdateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'titre' => 'sometimes|required|string|max:255',
-            'categorie' => 'sometimes|required|string|max:100',
-            'niveau' => 'sometimes|required|in:debutant,intermediaire,avance',
-            'description' => 'sometimes|required|string|max:1000',
+            'titre' => 'sometimes|string|max:255',
+            'categorie' => 'sometimes|string|max:100',
+            'niveau' => 'sometimes|in:debutant,intermediaire,avance',
+            'description' => 'sometimes|string|max:1000',
             'disponibilite' => 'sometimes|boolean',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
         ];
     }
 
@@ -37,27 +34,18 @@ class CompetenceUpdateRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'titre.required' => 'Le titre est obligatoire.',
             'titre.string' => 'Le titre doit être une chaîne de caractères.',
             'titre.max' => 'Le titre ne peut pas dépasser 255 caractères.',
             
-            'categorie.required' => 'La catégorie est obligatoire.',
             'categorie.string' => 'La catégorie doit être une chaîne de caractères.',
             'categorie.max' => 'La catégorie ne peut pas dépasser 100 caractères.',
             
-            'niveau.required' => 'Le niveau est obligatoire.',
             'niveau.in' => 'Le niveau doit être : débutant, intermédiaire ou avancé.',
             
-            'description.required' => 'La description est obligatoire.',
             'description.string' => 'La description doit être une chaîne de caractères.',
             'description.max' => 'La description ne peut pas dépasser 1000 caractères.',
             
             'disponibilite.boolean' => 'La disponibilité doit être vraie ou fausse.',
-            
-            'image.image' => 'Le fichier doit être une image.',
-            'image.mimes' => 'L\'image doit être au format : jpeg, png, jpg ou gif.',
-            'image.max' => 'L\'image ne peut pas dépasser 2MB.',
         ];
     }
-
 }

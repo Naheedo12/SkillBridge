@@ -1,15 +1,14 @@
-import { useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import competenceService from '../services/competenceService';
-import useAuthStore from '../stores/authStore';
 
-const AddCompetence = () => {
+const EditCompetence = () => {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const { user } = useAuthStore();
+  const { id } = useParams();
   const [loading, setLoading] = useState(false);
+  const [loadingData, setLoadingData] = useState(true);
   const [error, setError] = useState('');
   const [formData, setFormData] = useState({
     titre: '',
@@ -19,9 +18,34 @@ const AddCompetence = () => {
     disponibilite: true
   });
 
-  // Vérifier si c'est un admin qui vient de la page admin
-  const isAdminRedirect = searchParams.get('redirect') === 'admin';
-  const isAdmin = user?.role === 'Administrateur' || user?.role === 'admin';
+  // Charger les données de la compétence
+  useEffect(() => {
+    const fetchCompetence = async () => {
+      try {
+        setLoadingData(true);
+        const response = await competenceService.getCompetenceById(id);
+        if (response?.success) {
+          const competence = response.data;
+          setFormData({
+            titre: competence.titre || '',
+            description: competence.description || '',
+            categorie: competence.categorie || '',
+            niveau: competence.niveau || '',
+            disponibilite: competence.disponibilite || false
+          });
+        }
+      } catch (error) {
+        console.error('Erreur lors du chargement:', error);
+        setError('Erreur lors du chargement de la compétence');
+      } finally {
+        setLoadingData(false);
+      }
+    };
+
+    if (id) {
+      fetchCompetence();
+    }
+  }, [id]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -37,20 +61,20 @@ const handleSubmit = async (e) => {
   setError('');
 
   try {
-    const response = await competenceService.createCompetence(formData);
+    const response = await competenceService.updateCompetence(id, formData);
     if (response.success) {
       navigate('/dashboard', { 
         state: { 
-          message: 'Compétence créée avec succès!',
+          message: 'Compétence modifiée avec succès!',
           showNotification: true
         }
       });
     } else {
-      setError(response.message || 'Erreur lors de la création de la compétence');
+      setError(response.message || 'Erreur lors de la modification de la compétence');
     }
   } catch (error) {
-    console.error('Erreur lors de la création:', error);
-    setError(error.message || 'Erreur lors de la création de la compétence');
+    console.error('Erreur lors de la modification:', error);
+    setError(error.message || 'Erreur lors de la modification de la compétence');
   } finally {
     setLoading(false);
   }
@@ -59,6 +83,21 @@ const handleSubmit = async (e) => {
   const handleCancel = () => {
     navigate(-1);
   };
+
+  if (loadingData) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Header />
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">Chargement de la compétence...</p>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -73,10 +112,10 @@ const handleSubmit = async (e) => {
       >
         <div className="max-w-4xl mx-auto">
           <h1 className="text-4xl md:text-5xl font-bold text-white font-['Inter'] mb-4">
-            Proposer une nouvelle compétence
+            Modifier la compétence
           </h1>
           <p className="text-xl text-white/90 font-['Inter']">
-            Partagez votre expertise et gagnez des crédits
+            Mettez à jour les informations de votre compétence
           </p>
         </div>
       </section>
@@ -100,15 +139,15 @@ const handleSubmit = async (e) => {
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
             <div className="flex items-start gap-3">
               <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center shrink-0 mt-0.5">
-                <span className="text-white text-sm font-bold">?</span>
+                <span className="text-white text-sm font-bold">ℹ</span>
               </div>
               <div>
                 <h3 className="font-semibold text-blue-900 font-['Inter'] mb-2">
-                  Comment ça fonctionne ?
+                  Modification de compétence
                 </h3>
                 <p className="text-blue-800 font-['Inter'] text-sm leading-relaxed">
-                  Créez une compétence que vous maîtrisez et que vous souhaitez enseigner. Les autres utilisateurs pourront 
-                  la découvrir et vous contacter pour échanger des compétences contre la vôtre.
+                  Modifiez les informations de votre compétence. L'image sera automatiquement mise à jour 
+                  si vous changez de catégorie.
                 </p>
               </div>
             </div>
@@ -136,8 +175,6 @@ const handleSubmit = async (e) => {
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent font-['Inter']"
                 />
               </div>
-
-              {/* Prix en crédits - Supprimé car fixe à 2 crédits */}
 
               {/* Catégorie et Niveau */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -184,8 +221,6 @@ const handleSubmit = async (e) => {
                   </select>
                 </div>
               </div>
-
-
             </div>
           </div>
 
@@ -251,7 +286,7 @@ const handleSubmit = async (e) => {
               {loading && (
                 <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
               )}
-              {loading ? 'Publication...' : 'Publier la compétence'}
+              {loading ? 'Modification...' : 'Modifier la compétence'}
             </button>
           </div>
         </form>
@@ -262,4 +297,4 @@ const handleSubmit = async (e) => {
   );
 };
 
-export default AddCompetence;
+export default EditCompetence;

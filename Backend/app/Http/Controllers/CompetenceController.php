@@ -3,244 +3,162 @@
 namespace App\Http\Controllers;
 
 use App\Models\Competence;
-use App\Http\Requests\StoreCompetenceRequest;
-use App\Http\Requests\UpdateCompetenceRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 
 class CompetenceController extends Controller
 {
-    /**
-     * Afficher toutes les compétences avec filtres et pagination
-     */
     public function index(Request $request)
     {
         try {
-            \Log::info('=== DÉBUT REQUÊTE COMPÉTENCES ===');
-            \Log::info('Paramètres reçus:', $request->all());
-            
             $query = Competence::with('user:id,nom,prenom,photo')
-                ->orderBy('created_at', 'desc');
+                ->orderByDesc('created_at');
 
-            // Filtrage par recherche
-            if ($request->has('search') && !empty($request->search)) {
-                $searchTerm = $request->search;
-                \Log::info('Filtrage par recherche: ' . $searchTerm);
-                $query->where(function($q) use ($searchTerm) {
-                    $q->where('titre', 'like', '%' . $searchTerm . '%')
-                      ->orWhere('description', 'like', '%' . $searchTerm . '%')
-                      ->orWhere('categorie', 'like', '%' . $searchTerm . '%');
+            // Recherche
+            if ($request->filled('search')) {
+                $search = $request->search;
+                $query->where(function ($q) use ($search) {
+                    $q->where('titre', 'like', "%{$search}%")
+                      ->orWhere('description', 'like', "%{$search}%")
+                      ->orWhere('categorie', 'like', "%{$search}%");
                 });
             }
 
-            // Filtrage par catégorie
-            if ($request->has('category') && !empty($request->category) && $request->category !== 'Toutes catégories') {
-                \Log::info('Filtrage par catégorie: ' . $request->category);
+            // Catégorie
+            if ($request->filled('category') && $request->category !== 'Toutes catégories') {
                 $query->where('categorie', $request->category);
             }
 
-            // Filtrage par niveau
-            if ($request->has('level') && !empty($request->level) && $request->level !== 'Tous niveaux') {
-                \Log::info('Filtrage par niveau: ' . $request->level);
-                
-                // Mapper les niveaux français vers les valeurs de la base de données
+            // Niveau
+            if ($request->filled('level') && $request->level !== 'Tous niveaux') {
                 $levelMap = [
                     'Débutant' => 'debutant',
                     'Intermédiaire' => 'intermediaire',
                     'Avancé' => 'avance',
-                    'Expert' => 'expert'
+                    'Expert' => 'expert',
                 ];
-                
+
                 $level = $levelMap[$request->level] ?? $request->level;
-                \Log::info('Niveau mappé: ' . $level);
                 $query->where('niveau', $level);
             }
 
-            // Filtrage par disponibilité (optionnel)
+            // Disponibilité
             if ($request->has('disponible')) {
-                \Log::info('Filtrage par disponibilité: ' . $request->boolean('disponible'));
-                $query->where('disponibilite', $request->boolean('disponible'));
+                $query->where('disponibilite', (bool) $request->disponible);
             }
 
-            \Log::info('SQL généré: ' . $query->toSql());
-            \Log::info('Bindings: ', $query->getBindings());
-
-            // Pagination
-            $perPage = $request->get('per_page', 9); // 9 par défaut pour 3x3 grid
+            $perPage = (int) $request->get('per_page', 9);
             $competences = $query->paginate($perPage);
-
-            \Log::info('Nombre de compétences trouvées: ' . $competences->total());
 
             return response()->json([
                 'success' => true,
                 'data' => $competences,
-                'message' => 'Compétences récupérées avec succès'
             ], 200);
-        } catch (\Exception $e) {
-            \Log::error('Erreur dans index:', ['message' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+
+        } catch (\Throwable $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Erreur lors de la récupération des compétences',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
 
-    /**
-     * Afficher une compétence spécifique
-     */
     public function show($id)
     {
-        try {
-            $competence = Competence::with('user:id,nom,prenom,photo,bio')
-                ->find($id);
+        $competence = Competence::with('user:id,nom,prenom,photo,bio')->find($id);
 
-            if (!$competence) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Compétence non trouvée'
-                ], 404);
-            }
-
-            return response()->json([
-                'success' => true,
-                'data' => $competence,
-                'message' => 'Compétence récupérée avec succès'
-            ], 200);
-        } catch (\Exception $e) {
+        if (!$competence) {
             return response()->json([
                 'success' => false,
-                'message' => 'Erreur lors de la récupération de la compétence',
-                'error' => $e->getMessage()
-            ], 500);
+                'message' => 'Compétence non trouvée',
+            ], 404);
         }
+
+        return response()->json([
+            'success' => true,
+            'data' => $competence,
+        ], 200);
     }
 
-    /**
-     * Créer une nouvelle compétence
-     */
-    public function store(StoreCompetenceRequest $request)
+    public function store(Request $request)
     {
         try {
-            \Log::info('Début création compétence', ['user_id' => Auth::id()]);
-            \Log::info('Données reçues', $request->all());
-            
-            $data = $request->validated();
-            $data['user_id'] = Auth::id();
+            // Validation directe
+            $validator = Validator::make($request->all(), [
+                'titre' => 'required|string|max:255',
+                'description' => 'required|string',
+                'categorie' => 'required|string|in:Programmation,Design,Musique,Cuisine,Art,Sport,Sciences,Bricolage,Jardinage,Informatique',
+                'niveau' => 'required|string|in:debutant,intermediaire,avance',
+                'disponibilite' => 'boolean',
+            ]);
 
-            \Log::info('Données validées', $data);
-
-            // Upload image vers Cloudinary si présente et si Cloudinary est configuré
-            if ($request->hasFile('image')) {
-                \Log::info('Image détectée, tentative upload vers Cloudinary');
-                
-                try {
-                    // Vérifier si Cloudinary est configuré
-                    if (config('cloudinary.cloud_url')) {
-                        $uploadedFileUrl = Cloudinary::upload($request->file('image')->getRealPath(), [
-                            'folder' => 'competences',
-                            'transformation' => [
-                                'width' => 800,
-                                'height' => 600,
-                                'crop' => 'fill',
-                                'quality' => 'auto'
-                            ]
-                        ])->getSecurePath();
-                        
-                        $data['image'] = $uploadedFileUrl;
-                        \Log::info('Image uploadée vers Cloudinary', ['url' => $uploadedFileUrl]);
-                    } else {
-                        \Log::warning('Cloudinary non configuré, image ignorée');
-                        // Ne pas inclure l'image si Cloudinary n'est pas configuré
-                        unset($data['image']);
-                    }
-                } catch (\Exception $cloudinaryError) {
-                    \Log::error('Erreur upload Cloudinary', [
-                        'error' => $cloudinaryError->getMessage(),
-                        'file' => $cloudinaryError->getFile(),
-                        'line' => $cloudinaryError->getLine()
-                    ]);
-                    
-                    // Continuer sans image si Cloudinary échoue
-                    unset($data['image']);
-                    \Log::info('Création de compétence sans image suite à erreur Cloudinary');
-                }
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Erreur de validation',
+                    'errors' => $validator->errors(),
+                ], 422);
             }
 
-            \Log::info('Création en base de données');
+            $data = $validator->validated();
+            $data['user_id'] = Auth::id();
+            $data['image'] = $this->getImageByCategory($data['categorie'] ?? null);
+
             $competence = Competence::create($data);
             $competence->load('user:id,nom,prenom,photo');
 
-            \Log::info('Compétence créée avec succès', ['id' => $competence->id]);
-
             return response()->json([
                 'success' => true,
                 'data' => $competence,
-                'message' => 'Compétence créée avec succès'
             ], 201);
-        } catch (\Exception $e) {
-            \Log::error('Erreur création compétence', [
-                'message' => $e->getMessage(),
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
-                'trace' => $e->getTraceAsString()
-            ]);
-            
+
+        } catch (\Throwable $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Erreur lors de la création de la compétence',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
 
-    /**
-     * Modifier une compétence
-     */
-    public function update(UpdateCompetenceRequest $request, $id)
+    public function update(Request $request, $id)
     {
         try {
             $competence = Competence::findOrFail($id);
-            
-            // Vérifier les permissions
-            if (!Auth::user()->isAdministrateur() && $competence->user_id !== Auth::id()) {
+
+            if (!Auth::check() ||
+                (!Auth::user()->isAdministrateur() && $competence->user_id !== Auth::id())
+            ) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Vous n\'avez pas l\'autorisation de modifier cette compétence'
+                    'message' => 'Action non autorisée',
                 ], 403);
             }
 
-            $data = $request->validated();
+            // Validation directe
+            $validator = Validator::make($request->all(), [
+                'titre' => 'sometimes|required|string|max:255',
+                'description' => 'sometimes|required|string',
+                'categorie' => 'sometimes|required|string|in:Programmation,Design,Musique,Cuisine,Art,Sport,Sciences,Bricolage,Jardinage,Informatique',
+                'niveau' => 'sometimes|required|string|in:debutant,intermediaire,avance',
+                'disponibilite' => 'sometimes|boolean',
+            ]);
 
-            // Upload nouvelle image vers Cloudinary si présente et si Cloudinary est configuré
-            if ($request->hasFile('image')) {
-                try {
-                    // Vérifier si Cloudinary est configuré
-                    if (config('cloudinary.cloud_url')) {
-                        $uploadedFileUrl = Cloudinary::upload($request->file('image')->getRealPath(), [
-                            'folder' => 'competences',
-                            'transformation' => [
-                                'width' => 800,
-                                'height' => 600,
-                                'crop' => 'fill',
-                                'quality' => 'auto'
-                            ]
-                        ])->getSecurePath();
-                        
-                        $data['image'] = $uploadedFileUrl;
-                    } else {
-                        // Ne pas inclure l'image si Cloudinary n'est pas configuré
-                        unset($data['image']);
-                    }
-                } catch (\Exception $cloudinaryError) {
-                    \Log::error('Erreur upload Cloudinary lors de la modification', [
-                        'error' => $cloudinaryError->getMessage()
-                    ]);
-                    
-                    // Continuer sans modifier l'image si Cloudinary échoue
-                    unset($data['image']);
-                }
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Erreur de validation',
+                    'errors' => $validator->errors(),
+                ], 422);
+            }
+
+            $data = $validator->validated();
+
+            if (isset($data['categorie']) && $data['categorie'] !== $competence->categorie) {
+                $data['image'] = $this->getImageByCategory($data['categorie']);
             }
 
             $competence->update($data);
@@ -249,120 +167,102 @@ class CompetenceController extends Controller
             return response()->json([
                 'success' => true,
                 'data' => $competence,
-                'message' => 'Compétence modifiée avec succès'
             ], 200);
-        } catch (\Exception $e) {
+
+        } catch (\Throwable $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Erreur lors de la modification de la compétence',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
 
-    /**
-     * Supprimer une compétence
-     */
     public function destroy($id)
     {
-        try {
-            $competence = Competence::findOrFail($id);
-            
-            // Vérifier les permissions
-            if (!Auth::user()->isAdministrateur() && $competence->user_id !== Auth::id()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Vous n\'avez pas l\'autorisation de supprimer cette compétence'
-                ], 403);
-            }
+        $competence = Competence::findOrFail($id);
 
-            $competence->delete();
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Compétence supprimée avec succès'
-            ], 200);
-        } catch (\Exception $e) {
+        if (!Auth::check() ||
+            (!Auth::user()->isAdministrateur() && $competence->user_id !== Auth::id())
+        ) {
             return response()->json([
                 'success' => false,
-                'message' => 'Erreur lors de la suppression de la compétence',
-                'error' => $e->getMessage()
-            ], 500);
+                'message' => 'Action non autorisée',
+            ], 403);
         }
+
+        $competence->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Compétence supprimée avec succès',
+        ], 200);
     }
 
-    /**
-     * Récupérer les statistiques par catégorie
-     */
     public function getCategoriesStats()
     {
-        try {
-            $stats = Competence::select('categorie', \DB::raw('count(*) as count'))
-                ->groupBy('categorie')
-                ->orderBy('count', 'desc')
-                ->get();
+        $stats = Competence::select('categorie', DB::raw('COUNT(*) as count'))
+            ->groupBy('categorie')
+            ->orderByDesc('count')
+            ->get();
 
-            return response()->json([
-                'success' => true,
-                'data' => $stats,
-                'message' => 'Statistiques des catégories récupérées avec succès'
-            ], 200);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Erreur lors de la récupération des statistiques',
-                'error' => $e->getMessage()
-            ], 500);
-        }
+        return response()->json([
+            'success' => true,
+            'data' => $stats,
+        ], 200);
     }
 
-    /**
-     * Récupérer les compétences récentes (populaires)
-     */
     public function getRecentCompetences($limit = 3)
     {
-        try {
-            $competences = Competence::with('user:id,nom,prenom,photo')
-                ->orderBy('created_at', 'desc')
-                ->limit($limit)
-                ->get();
+        $competences = Competence::with('user:id,nom,prenom,photo')
+            ->latest()
+            ->limit((int) $limit)
+            ->get();
 
-            return response()->json([
-                'success' => true,
-                'data' => $competences,
-                'message' => 'Compétences récentes récupérées avec succès'
-            ], 200);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Erreur lors de la récupération des compétences récentes',
-                'error' => $e->getMessage()
-            ], 500);
-        }
+        return response()->json([
+            'success' => true,
+            'data' => $competences,
+        ], 200);
     }
 
-    /**
-     * Afficher les compétences de l'utilisateur connecté
-     */
     public function mesCompetences()
     {
         try {
             $competences = Competence::where('user_id', Auth::id())
                 ->with('user:id,nom,prenom,photo')
-                ->orderBy('created_at', 'desc')
+                ->latest()
                 ->get();
 
             return response()->json([
                 'success' => true,
                 'data' => $competences,
-                'message' => 'Vos compétences récupérées avec succès'
             ], 200);
-        } catch (\Exception $e) {
+            
+        } catch (\Throwable $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Erreur lors de la récupération de vos compétences',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
+    }
+
+    private function getImageByCategory($categorie)
+    {
+        $images = [
+            'Programmation' => 'https://images.unsplash.com/photo-1633356122544-f134324a6cee',
+            'Design' => 'https://images.unsplash.com/photo-1561070791-2526d30994b5',
+            'Musique' => 'https://images.unsplash.com/photo-1510915361894-db8b60106cb1',
+            'Cuisine' => 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136',
+            'Art' => 'https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0',
+            'Sport' => 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b',
+            'Sciences' => 'https://images.unsplash.com/photo-1532094349884-543bc11b234d',
+            'Bricolage' => 'https://images.unsplash.com/photo-1581244277943-fe4a9c777189',
+            'Jardinage' => 'https://images.unsplash.com/photo-1416879595882-3373a0480b5b',
+            'Informatique' => 'https://images.unsplash.com/photo-1518432031352-d6fc5c10da5a',
+        ];
+
+        return $images[$categorie]
+            ?? 'https://images.unsplash.com/photo-1633356122544-f134324a6cee';
     }
 }

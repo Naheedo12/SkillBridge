@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { BookOpen, CreditCard, TrendingUp, Award, Eye, Edit, Trash2, Plus, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import useAuthStore from '../stores/authStore';
+import competenceService from '../services/competenceService';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 
@@ -11,60 +12,68 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('overview');
   const [showModal, setShowModal] = useState(false);
-  const [modalType, setModalType] = useState(''); // 'view', 'add', 'edit', 'profile'
+  const [modalType, setModalType] = useState('');
   const [selectedCompetence, setSelectedCompetence] = useState(null);
+  const [mesCompetences, setMesCompetences] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  // Données statiques pour la démonstration
-  const userStats = {
-    competencesPubliees: 3,
-    competencesAchetees: 7,
-    creditsGagnes: 45,
-    creditsDepenses: 28,
-    totalEchanges: 12
-  };
+  // Charger les compétences de l'utilisateur
+  useEffect(() => {
+    const fetchMesCompetences = async () => {
+      if (activeTab === 'mes-competences') {
+        try {
+          setLoading(true);
+          setError('');
+          const response = await competenceService.getMyCompetences();
+          if (response?.success) {
+            setMesCompetences(response.data || []);
+          }
+        } catch (error) {
+          console.error('Erreur lors du chargement des compétences:', error);
+          setError('Erreur lors du chargement de vos compétences');
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
 
-  const [mesCompetences, setMesCompetences] = useState([
-    {
-      id: 1,
-      titre: 'Design UI/UX Avancé',
-      description: 'Apprenez les techniques avancées de design d\'interface',
-      prix_credits: 8,
-      participants: 15,
-      revenus: 120,
-      date_creation: '2024-12-10'
-    },
-    {
-      id: 2,
-      titre: 'Photoshop pour Débutants',
-      description: 'Maîtrisez les bases de Photoshop',
-      prix_credits: 5,
-      participants: 8,
-      revenus: 40,
-      date_creation: '2024-12-05'
-    },
-    {
-      id: 3,
-      titre: 'Marketing Digital',
-      description: 'Stratégies de marketing en ligne',
-      prix_credits: 6,
-      participants: 0,
-      revenus: 0,
-      date_creation: '2024-12-20'
-    }
-  ]);
+    fetchMesCompetences();
+  }, [activeTab]);
 
   // Fonction pour supprimer une compétence
-  const handleDeleteCompetence = (competenceId) => {
+  const handleDeleteCompetence = async (competenceId) => {
     if (window.confirm('Êtes-vous sûr de vouloir supprimer cette compétence ? Cette action est irréversible.')) {
-      setMesCompetences(mesCompetences.filter(comp => comp.id !== competenceId));
+      try {
+        setLoading(true);
+        const response = await competenceService.deleteCompetence(competenceId);
+        if (response?.success) {
+          // Recharger la liste des compétences
+          setMesCompetences(mesCompetences.filter(comp => comp.id !== competenceId));
+        }
+      } catch (error) {
+        console.error('Erreur lors de la suppression:', error);
+        setError('Erreur lors de la suppression de la compétence');
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
   // Fonctions pour gérer les modals
   const handleOpenModal = (type, competence = null) => {
     if (type === 'add') {
-      // Rediriger vers la page d'ajout de compétence
       navigate('/add-competence');
+      return;
+    }
+    
+    if (type === 'edit' && competence) {
+      navigate(`/competences/${competence.id}/edit`);
+      return;
+    }
+    
+    if (type === 'view' && competence) {
+      navigate(`/competences/${competence.id}`);
       return;
     }
     
@@ -79,24 +88,6 @@ const Dashboard = () => {
     setSelectedCompetence(null);
   };
 
-  const handleSaveCompetence = (competenceData) => {
-    if (modalType === 'add') {
-      const newCompetence = {
-        ...competenceData,
-        id: Math.max(...mesCompetences.map(c => c.id)) + 1,
-        participants: 0,
-        revenus: 0,
-        date_creation: new Date().toISOString().split('T')[0]
-      };
-      setMesCompetences([...mesCompetences, newCompetence]);
-    } else if (modalType === 'edit') {
-      setMesCompetences(mesCompetences.map(c => 
-        c.id === selectedCompetence.id ? { ...c, ...competenceData } : c
-      ));
-    }
-    handleCloseModal();
-  };
-
   const handleSaveProfile = async (profileData) => {
     const result = await updateProfile(profileData);
     if (result.success) {
@@ -105,41 +96,21 @@ const Dashboard = () => {
     return result;
   };
 
+  // Données statiques pour les autres sections (à remplacer par de vraies données si disponibles)
+  const userStats = {
+    competencesPubliees: mesCompetences.length,
+    competencesAchetees: 0, // À implémenter avec la logique d'échange
+    creditsGagnes: user?.solde_credits || 0,
+    creditsDepenses: 0, // À implémenter avec la logique d'échange
+    totalEchanges: 0 // À implémenter avec la logique d'échange
+  };
+
   const competencesAchetees = [
-    {
-      id: 1,
-      titre: 'React Avancé',
-      auteur: 'Bouchra FETTAH',
-      prix_credits: 8,
-      date_achat: '2024-12-15',
-      progression: 75,
-      statut: 'en_cours'
-    },
-    {
-      id: 2,
-      titre: 'Python pour Data Science',
-      auteur: 'Ahmed BENALI',
-      prix_credits: 10,
-      date_achat: '2024-12-10',
-      progression: 100,
-      statut: 'terminé'
-    },
-    {
-      id: 3,
-      titre: 'SEO et Référencement',
-      auteur: 'Fatima ZAHRA',
-      prix_credits: 6,
-      date_achat: '2024-12-18',
-      progression: 30,
-      statut: 'en_cours'
-    }
+    // À remplacer par de vraies données
   ];
 
   const activitesRecentes = [
-    { id: 1, type: 'achat', message: 'Vous avez acheté "React Avancé"', date: '2024-12-15', credits: -8 },
-    { id: 2, type: 'vente', message: 'Quelqu\'un a acheté votre "Design UI/UX"', date: '2024-12-14', credits: +8 },
-    { id: 3, type: 'completion', message: 'Vous avez terminé "Python Data Science"', date: '2024-12-10', credits: 0 },
-    { id: 4, type: 'publication', message: 'Votre compétence "Marketing Digital" a été ajoutée', date: '2024-12-08', credits: 0 }
+    // À remplacer par de vraies données
   ];
 
   return (
@@ -210,6 +181,13 @@ const Dashboard = () => {
             </button>
           </div>
 
+          {/* Messages d'erreur */}
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
+              {error}
+            </div>
+          )}
+
           {/* Contenu selon l'onglet actif */}
           {activeTab === 'overview' && (
             <OverviewTab 
@@ -222,6 +200,7 @@ const Dashboard = () => {
           {activeTab === 'mes-competences' && (
             <MesCompetencesTab 
               competences={mesCompetences} 
+              loading={loading}
               onDeleteCompetence={handleDeleteCompetence}
               onViewCompetence={(comp) => handleOpenModal('view', comp)}
               onEditCompetence={(comp) => handleOpenModal('edit', comp)}
@@ -234,20 +213,12 @@ const Dashboard = () => {
         </div>
       </section>
 
-      {/* Modal pour les compétences et le profil */}
+      {/* Modal pour le profil uniquement */}
       {showModal && modalType === 'profile' && (
         <ProfileModal
           user={user}
           onClose={handleCloseModal}
           onSave={handleSaveProfile}
-        />
-      )}
-      {showModal && modalType !== 'profile' && (
-        <CompetenceModal
-          type={modalType}
-          competence={selectedCompetence}
-          onClose={handleCloseModal}
-          onSave={handleSaveCompetence}
         />
       )}
 
@@ -341,7 +312,7 @@ const OverviewTab = ({ userStats, activitesRecentes, user, onEditProfile }) => (
             <div className="flex-1">
               <h4 className="font-medium text-gray-900">{user?.prenom} {user?.nom}</h4>
               <p className="text-sm text-gray-500">{user?.email}</p>
-              <p className="text-sm text-purple-600">Membre depuis {new Date().getFullYear()}</p>
+              <p className="text-sm text-purple-600">Membre depuis {new Date(user?.created_at).getFullYear()}</p>
             </div>
           </div>
           
@@ -370,72 +341,113 @@ const OverviewTab = ({ userStats, activitesRecentes, user, onEditProfile }) => (
   </div>
 );
 
-// Composant Mes Compétences - SANS STATUTS
-const MesCompetencesTab = ({ competences, onDeleteCompetence, onViewCompetence, onEditCompetence, onAddCompetence }) => (
-  <div className="space-y-6">
-    <div className="flex items-center justify-between">
-      <h2 className="text-xl font-semibold text-gray-900">Mes Compétences</h2>
-      <button 
-        onClick={onAddCompetence}
-        className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
-      >
-        <Plus className="h-4 w-4" />
-        Ajouter une compétence
-      </button>
-    </div>
+// Composant Mes Compétences
+const MesCompetencesTab = ({ competences, loading, onDeleteCompetence, onViewCompetence, onEditCompetence, onAddCompetence }) => {
+  // Format du niveau
+  const formatLevel = (niveau) => {
+    const levelMap = {
+      debutant: 'Débutant',
+      intermediaire: 'Intermédiaire',
+      avance: 'Avancé',
+    };
+    return levelMap[niveau] || niveau || 'Non spécifié';
+  };
 
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {competences.map((competence) => (
-        <div key={competence.id} className="bg-white rounded-lg shadow-sm p-6">
-          <div className="flex items-start justify-between mb-3">
-            <h3 className="font-semibold text-gray-900">{competence.titre}</h3>
-          </div>
-          
-          <p className="text-sm text-gray-600 mb-4">{competence.description}</p>
-          
-          <div className="space-y-2 text-sm">
-            <div className="flex justify-between">
-              <span className="text-gray-500">Prix:</span>
-              <span className="font-medium">{competence.prix_credits} crédits</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-gray-500">Participants:</span>
-              <span className="font-medium">{competence.participants}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-gray-500">Revenus:</span>
-              <span className="font-medium text-green-600">{competence.revenus} crédits</span>
-            </div>
-          </div>
+  if (loading) {
+    return (
+      <div className="flex justify-center py-12">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+      </div>
+    );
+  }
 
-          <div className="flex gap-2 mt-4">
-            <button 
-              onClick={() => onViewCompetence(competence)}
-              className="flex-1 flex items-center justify-center gap-1 px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50"
-            >
-              <Eye className="h-4 w-4" />
-              Voir
-            </button>
-            <button 
-              onClick={() => onEditCompetence(competence)}
-              className="flex-1 flex items-center justify-center gap-1 px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50"
-            >
-              <Edit className="h-4 w-4" />
-              Modifier
-            </button>
-            <button 
-              onClick={() => onDeleteCompetence(competence.id)}
-              className="flex-1 flex items-center justify-center gap-1 px-3 py-2 text-sm border border-red-300 text-red-600 rounded-lg hover:bg-red-50"
-            >
-              <Trash2 className="h-4 w-4" />
-              Supprimer
-            </button>
-          </div>
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h2 className="text-xl font-semibold text-gray-900">Mes Compétences</h2>
+        <button 
+          onClick={onAddCompetence}
+          className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+        >
+          <Plus className="h-4 w-4" />
+          Ajouter une compétence
+        </button>
+      </div>
+
+      {competences.length === 0 ? (
+        <div className="bg-white rounded-lg shadow-sm p-12 text-center">
+          <BookOpen className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+          <h3 className="text-lg font-medium text-gray-900 mb-2">Aucune compétence</h3>
+          <p className="text-gray-600 mb-6">Commencez par ajouter votre première compétence</p>
+          <button 
+            onClick={onAddCompetence}
+            className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+          >
+            Ajouter ma première compétence
+          </button>
         </div>
-      ))}
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {competences.map((competence) => (
+            <div key={competence.id} className="bg-white rounded-lg shadow-sm p-6">
+              <div className="flex items-start justify-between mb-3">
+                <h3 className="font-semibold text-gray-900">{competence.titre}</h3>
+              </div>
+              
+              <div className="mb-4">
+                <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800 mb-2">
+                  {competence.categorie}
+                </span>
+                <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800 ml-2">
+                  {formatLevel(competence.niveau)}
+                </span>
+              </div>
+              
+              <p className="text-sm text-gray-600 mb-4 truncate">{competence.description}</p>
+              
+              <div className="flex items-center justify-between text-sm mb-4">
+                <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                  competence.disponibilite 
+                    ? 'bg-green-100 text-green-800' 
+                    : 'bg-red-100 text-red-800'
+                }`}>
+                  {competence.disponibilite ? 'Disponible' : 'Non disponible'}
+                </span>
+                <span className="text-gray-500">
+                  {new Date(competence.created_at).toLocaleDateString('fr-FR')}
+                </span>
+              </div>
+
+              <div className="flex gap-2 mt-4">
+                <button 
+                  onClick={() => onViewCompetence(competence)}
+                  className="flex-1 flex items-center justify-center gap-1 px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50"
+                >
+                  <Eye className="h-4 w-4" />
+                  Voir
+                </button>
+                <button 
+                  onClick={() => onEditCompetence(competence)}
+                  className="flex-1 flex items-center justify-center gap-1 px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50"
+                >
+                  <Edit className="h-4 w-4" />
+                  Modifier
+                </button>
+                <button 
+                  onClick={() => onDeleteCompetence(competence.id)}
+                  className="flex-1 flex items-center justify-center gap-1 px-3 py-2 text-sm border border-red-300 text-red-600 rounded-lg hover:bg-red-50"
+                >
+                  <Trash2 className="h-4 w-4" />
+                  Supprimer
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
-  </div>
-);
+  );
+};
 
 // Composant Mes Achats
 const AchatsTab = ({ competences }) => (
@@ -443,49 +455,57 @@ const AchatsTab = ({ competences }) => (
     <h2 className="text-xl font-semibold text-gray-900">Mes Compétences Achetées</h2>
 
     <div className="space-y-4">
-      {competences.map((competence) => (
-        <div key={competence.id} className="bg-white rounded-lg shadow-sm p-6">
-          <div className="flex items-start justify-between">
-            <div className="flex-1">
-              <h3 className="font-semibold text-gray-900 mb-1">{competence.titre}</h3>
-              <p className="text-sm text-gray-600 mb-2">Par {competence.auteur}</p>
-              
-              <div className="flex items-center gap-4 text-sm text-gray-500">
-                <span>Acheté le {new Date(competence.date_achat).toLocaleDateString('fr-FR')}</span>
-                <span>{competence.prix_credits} crédits</span>
+      {competences.length === 0 ? (
+        <div className="bg-white rounded-lg shadow-sm p-12 text-center">
+          <CreditCard className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+          <h3 className="text-lg font-medium text-gray-900 mb-2">Aucun achat</h3>
+          <p className="text-gray-600">Vous n'avez pas encore acheté de compétences</p>
+        </div>
+      ) : (
+        competences.map((competence) => (
+          <div key={competence.id} className="bg-white rounded-lg shadow-sm p-6">
+            <div className="flex items-start justify-between">
+              <div className="flex-1">
+                <h3 className="font-semibold text-gray-900 mb-1">{competence.titre}</h3>
+                <p className="text-sm text-gray-600 mb-2">Par {competence.auteur}</p>
+                
+                <div className="flex items-center gap-4 text-sm text-gray-500">
+                  <span>Acheté le {new Date(competence.date_achat).toLocaleDateString('fr-FR')}</span>
+                  <span>{competence.prix_credits} crédits</span>
+                </div>
+
+                {/* Barre de progression */}
+                <div className="mt-4">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-sm text-gray-600">Progression</span>
+                    <span className="text-sm font-medium text-gray-900">{competence.progression}%</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div 
+                      className="bg-purple-600 h-2 rounded-full transition-all duration-300"
+                      style={{ width: `${competence.progression}%` }}
+                    ></div>
+                  </div>
+                </div>
               </div>
 
-              {/* Barre de progression */}
-              <div className="mt-4">
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-sm text-gray-600">Progression</span>
-                  <span className="text-sm font-medium text-gray-900">{competence.progression}%</span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div 
-                    className="bg-purple-600 h-2 rounded-full transition-all duration-300"
-                    style={{ width: `${competence.progression}%` }}
-                  ></div>
-                </div>
+              <div className="flex flex-col items-end gap-2">
+                <span className={`px-3 py-1 text-xs font-medium rounded-full ${
+                  competence.statut === 'terminé' 
+                    ? 'bg-green-100 text-green-800' 
+                    : 'bg-blue-100 text-blue-800'
+                }`}>
+                  {competence.statut === 'terminé' ? 'Terminé' : 'En cours'}
+                </span>
+                
+                <button className="px-4 py-2 bg-purple-600 text-white text-sm rounded-lg hover:bg-purple-700">
+                  {competence.statut === 'terminé' ? 'Revoir' : 'Continuer'}
+                </button>
               </div>
-            </div>
-
-            <div className="flex flex-col items-end gap-2">
-              <span className={`px-3 py-1 text-xs font-medium rounded-full ${
-                competence.statut === 'terminé' 
-                  ? 'bg-green-100 text-green-800' 
-                  : 'bg-blue-100 text-blue-800'
-              }`}>
-                {competence.statut === 'terminé' ? 'Terminé' : 'En cours'}
-              </span>
-              
-              <button className="px-4 py-2 bg-purple-600 text-white text-sm rounded-lg hover:bg-purple-700">
-                {competence.statut === 'terminé' ? 'Revoir' : 'Continuer'}
-              </button>
             </div>
           </div>
-        </div>
-      ))}
+        ))
+      )}
     </div>
   </div>
 );
@@ -514,194 +534,6 @@ const StatCard = ({ title, value, icon, color }) => {
   );
 };
 
-// Composant Modal pour les compétences - SANS STATUTS
-const CompetenceModal = ({ type, competence, onClose, onSave }) => {
-  const [formData, setFormData] = useState(
-    competence || {
-      titre: '',
-      description: '',
-      categorie: '',
-      prix_credits: 5,
-      duree: '',
-      niveau: 'Débutant'
-    }
-  );
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    onSave(formData);
-  };
-
-  const isViewMode = type === 'view';
-
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-semibold text-gray-900">
-            {type === 'add' ? 'Ajouter une compétence' : 
-             type === 'edit' ? 'Modifier la compétence' : 
-             'Détails de la compétence'}
-          </h2>
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-gray-600"
-          >
-            <X className="h-6 w-6" />
-          </button>
-        </div>
-
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Titre de la compétence
-            </label>
-            <input
-              type="text"
-              value={formData.titre}
-              onChange={(e) => setFormData({...formData, titre: e.target.value})}
-              disabled={isViewMode}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent disabled:bg-gray-100"
-              required
-              placeholder="Ex: Design UI/UX Avancé"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Description
-            </label>
-            <textarea
-              value={formData.description}
-              onChange={(e) => setFormData({...formData, description: e.target.value})}
-              disabled={isViewMode}
-              rows="4"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent disabled:bg-gray-100"
-              required
-              placeholder="Décrivez votre compétence en détail..."
-            />
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Catégorie
-              </label>
-              <select
-                value={formData.categorie}
-                onChange={(e) => setFormData({...formData, categorie: e.target.value})}
-                disabled={isViewMode}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent disabled:bg-gray-100"
-                required
-              >
-                <option value="">Sélectionner une catégorie</option>
-                <option value="Design">Design</option>
-                <option value="Développement">Développement</option>
-                <option value="Marketing">Marketing</option>
-                <option value="Business">Business</option>
-                <option value="Langues">Langues</option>
-                <option value="Photographie">Photographie</option>
-                <option value="Musique">Musique</option>
-                <option value="Cuisine">Cuisine</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Prix (crédits)
-              </label>
-              <input
-                type="number"
-                value={formData.prix_credits}
-                onChange={(e) => setFormData({...formData, prix_credits: parseInt(e.target.value)})}
-                disabled={isViewMode}
-                min="1"
-                max="50"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent disabled:bg-gray-100"
-                required
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Durée estimée
-              </label>
-              <input
-                type="text"
-                value={formData.duree}
-                onChange={(e) => setFormData({...formData, duree: e.target.value})}
-                disabled={isViewMode}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent disabled:bg-gray-100"
-                required
-                placeholder="Ex: 2 heures, 1 semaine..."
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Niveau
-              </label>
-              <select
-                value={formData.niveau}
-                onChange={(e) => setFormData({...formData, niveau: e.target.value})}
-                disabled={isViewMode}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent disabled:bg-gray-100"
-              >
-                <option value="Débutant">Débutant</option>
-                <option value="Intermédiaire">Intermédiaire</option>
-                <option value="Avancé">Avancé</option>
-              </select>
-            </div>
-          </div>
-
-          {/* Informations supplémentaires en mode view */}
-          {isViewMode && competence && (
-            <div className="bg-gray-50 rounded-lg p-4 space-y-2">
-              <h3 className="font-medium text-gray-900">Statistiques</h3>
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div>
-                  <span className="text-gray-500">Participants:</span>
-                  <span className="ml-2 font-medium">{competence.participants}</span>
-                </div>
-                <div>
-                  <span className="text-gray-500">Revenus:</span>
-                  <span className="ml-2 font-medium text-green-600">{competence.revenus} crédits</span>
-                </div>
-                <div>
-                  <span className="text-gray-500">Date de création:</span>
-                  <span className="ml-2 font-medium">
-                    {new Date(competence.date_creation).toLocaleDateString('fr-FR')}
-                  </span>
-                </div>
-              </div>
-            </div>
-          )}
-
-          <div className="flex justify-end gap-3 pt-4">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
-            >
-              {isViewMode ? 'Fermer' : 'Annuler'}
-            </button>
-            {!isViewMode && (
-              <button
-                type="submit"
-                className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
-              >
-                {type === 'add' ? 'Ajouter' : 'Modifier'}
-              </button>
-            )}
-          </div>
-        </form>
-      </div>
-    </div>
-  );
-};
-
 // Composant Modal pour le profil utilisateur
 const ProfileModal = ({ user, onClose, onSave }) => {
   const [formData, setFormData] = useState({
@@ -718,11 +550,7 @@ const ProfileModal = ({ user, onClose, onSave }) => {
     setError('');
     
     try {
-      // Nettoyer les données avant envoi
-      const cleanData = { ...formData };
-      if (cleanData.bio === '') cleanData.bio = null;
-      
-      const result = await onSave(cleanData);
+      const result = await onSave(formData);
       if (!result.success) {
         setError(result.message || 'Erreur lors de la mise à jour');
       }
@@ -799,7 +627,7 @@ const ProfileModal = ({ user, onClose, onSave }) => {
             <h4 className="font-medium text-gray-900 mb-2">Informations non modifiables</h4>
             <div className="space-y-1 text-sm text-gray-600">
               <p><span className="font-medium">Email:</span> {user?.email}</p>
-              <p><span className="font-medium">Rôle:</span> {user?.role === 'admin' ? 'Administrateur' : 'Utilisateur'}</p>
+              <p><span className="font-medium">Rôle:</span> {user?.role}</p>
               <p><span className="font-medium">Crédits:</span> {user?.solde_credits || 0}</p>
             </div>
           </div>

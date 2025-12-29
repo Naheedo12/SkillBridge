@@ -3,17 +3,15 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Http\Exceptions\HttpResponseException;
-use Illuminate\Contracts\Validation\Validator;
 
-class CompetenceStoreRequest extends FormRequest
+class StoreCompetenceRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        return true; 
+        return auth()->check(); // Seuls les utilisateurs connectés peuvent créer
     }
 
     /**
@@ -26,8 +24,7 @@ class CompetenceStoreRequest extends FormRequest
             'categorie' => 'required|string|max:100',
             'niveau' => 'required|in:debutant,intermediaire,avance',
             'description' => 'required|string|max:1000',
-            'disponibilite' => 'boolean',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
+            'disponibilite' => 'sometimes|boolean',
         ];
     }
 
@@ -53,10 +50,6 @@ class CompetenceStoreRequest extends FormRequest
             'description.max' => 'La description ne peut pas dépasser 1000 caractères.',
             
             'disponibilite.boolean' => 'La disponibilité doit être vraie ou fausse.',
-            
-            'image.image' => 'Le fichier doit être une image.',
-            'image.mimes' => 'L\'image doit être au format : jpeg, png, jpg ou gif.',
-            'image.max' => 'L\'image ne peut pas dépasser 2MB.',
         ];
     }
 }

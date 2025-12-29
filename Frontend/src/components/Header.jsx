@@ -104,9 +104,12 @@ const Header = () => {
               <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
             </Link>
 
-            <Link to="/chat" className="p-2 text-gray-500 hover:text-gray-700">
-              <MessageSquare className="h-5 w-5" />
-            </Link>
+            {/* Icône de messagerie - seulement pour les utilisateurs normaux */}
+            {!isAdmin() && (
+              <Link to="/chat" className="p-2 text-gray-500 hover:text-gray-700">
+                <MessageSquare className="h-5 w-5" />
+              </Link>
+            )}
 
             {/* Icône de profil utilisateur avec avatar - seulement pour les utilisateurs normaux */}
             {!isAdmin() && (

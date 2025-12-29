@@ -5,6 +5,7 @@ import Home from './pages/Home';
 import Contact from './pages/Contact';
 import Competences from './pages/Competences';
 import CompetenceDetail from './pages/CompetenceDetail';
+import EditCompetence from './pages/EditCompetence';
 import Chat from './pages/Chat';
 import AddCompetence from './pages/AddCompetence';
 import Notifications from './pages/Notifications';
@@ -12,9 +13,25 @@ import AdminDashboard from './pages/AdminDashboard';
 import Dashboard from './pages/Dashboard';
 import useAuthStore from './stores/authStore';
 
-function App() {
+// Composant pour protéger les routes nécessitant une authentification
+const PrivateRoute = ({ children, adminOnly = false }) => {
   const { isAuthenticated, user } = useAuthStore();
+  
+  if (!isAuthenticated()) {
+    return <Navigate to="/login" />;
+  }
+  
+  if (adminOnly) {
+    const isAdmin = user?.role === 'Administrateur' || user?.role === 'admin';
+    if (!isAdmin) {
+      return <Navigate to="/" />;
+    }
+  }
+  
+  return children;
+};
 
+function App() {
   return (
     <Router>
       <div className="App">
@@ -26,21 +43,49 @@ function App() {
           <Route path="/contact" element={<Contact />} />
           <Route path="/competences" element={<Competences />} />
           <Route path="/competences/:id" element={<CompetenceDetail />} />
-          <Route path="/chat" element={<Chat />} />
-          <Route path="/add-competence" element={<AddCompetence />} />
-          <Route path="/notifications" element={<Notifications />} />
-          <Route path="/admin" element={<AdminDashboard />} />
+          
+          {/* Routes protégées */}
+          <Route path="/competences/:id/edit" element={
+            <PrivateRoute>
+              <EditCompetence />
+            </PrivateRoute>
+          } />
+          
+          <Route path="/chat" element={
+            <PrivateRoute>
+              <Chat />
+            </PrivateRoute>
+          } />
+          
+          <Route path="/add-competence" element={
+            <PrivateRoute>
+              <AddCompetence />
+            </PrivateRoute>
+          } />
+          
+          <Route path="/notifications" element={
+            <PrivateRoute>
+              <Notifications />
+            </PrivateRoute>
+          } />
+          
+          <Route path="/admin" element={
+            <PrivateRoute adminOnly={true}>
+              <AdminDashboard />
+            </PrivateRoute>
+          } />
+          
           <Route path="/dashboard" element={
-            isAuthenticated() ? 
-              <Dashboard /> : 
-              <Navigate to="/login" />
+            <PrivateRoute>
+              <Dashboard />
+            </PrivateRoute>
           } />
           
           {/* Route pour le profil de l'utilisateur courant */}
           <Route path="/profile" element={
-            isAuthenticated() ? 
-              <Navigate to="/admin" /> : 
-              <Navigate to="/login" />
+            <PrivateRoute>
+              <Navigate to="/dashboard" />
+            </PrivateRoute>
           } />
         </Routes>
       </div>
