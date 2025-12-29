@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Carbon\Carbon;
 
 class CompetenceController extends Controller
 {
@@ -242,6 +243,133 @@ class CompetenceController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Erreur lors de la récupération de vos compétences',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function getAdminStats()
+    {
+        try {
+            // Compter le nombre total d'utilisateurs
+            $totalUsers = \App\Models\User::count();
+            
+            // Compter le nombre total de compétences
+            $totalCompetences = Competence::count();
+            
+            // Compter les compétences publiées (disponibles)
+            $publishedCompetences = Competence::where('disponibilite', true)->count();
+            
+            // Calculer le total des crédits en circulation
+            $totalCredits = \App\Models\User::sum('solde_credits');
+            
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'totalUsers' => $totalUsers,
+                    'totalCompetences' => $totalCompetences,
+                    'publishedCompetences' => $publishedCompetences,
+                    'totalCredits' => $totalCredits,
+                    // Données statiques pour l'instant (à implémenter plus tard si nécessaire)
+                    'completedExchanges' => 0,
+                    'activeUsers' => $totalUsers, // Tous les utilisateurs sont considérés comme actifs pour l'instant
+                    'newUsersThisMonth' => \App\Models\User::whereMonth('created_at', now()->month)
+                                                          ->whereYear('created_at', now()->year)
+                                                          ->count(),
+                ]
+            ], 200);
+            
+        } catch (\Throwable $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur lors de la récupération des statistiques',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function getRecentActivity()
+    {
+        try {
+            $activities = collect();
+
+            // Récupérer les utilisateurs récents
+            $recentUsers = \App\Models\User::latest()
+                ->take(3)
+                ->get(['id', 'nom', 'prenom', 'created_at']);
+
+            foreach ($recentUsers as $user) {
+                $activities->push([
+                    'id' => 'user_' . $user->id,
+                    'type' => 'user',
+                    'message' => "Nouvel utilisateur inscrit: {$user->prenom} {$user->nom}",
+                    'time' => $user->created_at->diffForHumans(),
+                    'created_at' => $user->created_at
+                ]);
+            }
+
+            // Récupérer les compétences récentes
+            $recentCompetences = Competence::with('user:id,nom,prenom')
+                ->latest()
+                ->take(3)
+                ->get();
+
+            foreach ($recentCompetences as $competence) {
+                $activities->push([
+                    'id' => 'comp_' . $competence->id,
+                    'type' => 'competence',
+                    'message' => "Nouvelle compétence publiée: {$competence->titre}",
+                    'time' => $competence->created_at->diffForHumans(),
+                    'created_at' => $competence->created_at
+                ]);
+            }
+
+            // Trier par date et prendre les 5 plus récents
+            $sortedActivities = $activities->sortByDesc('created_at')->take(5)->values();
+
+            return response()->json([
+                'success' => true,
+                'data' => $sortedActivities,
+            ], 200);
+            
+        } catch (\Throwable $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur lors de la récupération de l\'activité récente',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function getTopCompetences()
+    {
+        try {
+            $topCompetences = Competence::with('user:id,nom,prenom')
+                ->where('disponibilite', true)
+                ->latest()
+                ->take(5)
+                ->get();
+
+            $formattedCompetences = [];
+            foreach ($topCompetences as $index => $competence) {
+                $formattedCompetences[] = [
+                    'titre' => $competence->titre,
+                    'categorie' => $competence->categorie,
+                    'participants' => rand(10, 50), // Données simulées pour l'instant
+                    'revenus' => rand(50, 300), // Données simulées pour l'instant
+                    'created_at' => $competence->created_at->format('d/m/Y')
+                ];
+            }
+
+            return response()->json([
+                'success' => true,
+                'data' => $formattedCompetences,
+            ], 200);
+            
+        } catch (\Throwable $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur lors de la récupération des top compétences',
                 'error' => $e->getMessage(),
             ], 500);
         }

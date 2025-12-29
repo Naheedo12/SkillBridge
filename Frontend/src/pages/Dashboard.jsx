@@ -21,7 +21,7 @@ const Dashboard = () => {
   // Charger les compétences de l'utilisateur
   useEffect(() => {
     const fetchMesCompetences = async () => {
-      if (activeTab === 'mes-competences') {
+      if (activeTab === 'mes-competences' || activeTab === 'overview') {
         try {
           setLoading(true);
           setError('');
@@ -40,6 +40,22 @@ const Dashboard = () => {
 
     fetchMesCompetences();
   }, [activeTab]);
+
+  // Charger les compétences au montage initial pour les statistiques
+  useEffect(() => {
+    const fetchInitialCompetences = async () => {
+      try {
+        const response = await competenceService.getMyCompetences();
+        if (response?.success) {
+          setMesCompetences(response.data || []);
+        }
+      } catch (error) {
+        console.error('Erreur lors du chargement initial des compétences:', error);
+      }
+    };
+
+    fetchInitialCompetences();
+  }, []);
 
   // Fonction pour supprimer une compétence
   const handleDeleteCompetence = async (competenceId) => {
@@ -106,10 +122,6 @@ const Dashboard = () => {
   };
 
   const competencesAchetees = [
-    // À remplacer par de vraies données
-  ];
-
-  const activitesRecentes = [
     // À remplacer par de vraies données
   ];
 
@@ -192,7 +204,6 @@ const Dashboard = () => {
           {activeTab === 'overview' && (
             <OverviewTab 
               userStats={userStats} 
-              activitesRecentes={activitesRecentes}
               user={user}
               onEditProfile={() => handleOpenModal('profile')}
             />
@@ -228,7 +239,7 @@ const Dashboard = () => {
 };
 
 // Composant Vue d'ensemble
-const OverviewTab = ({ userStats, activitesRecentes, user, onEditProfile }) => (
+const OverviewTab = ({ userStats, user, onEditProfile }) => (
   <div className="space-y-6">
     {/* Statistiques */}
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -258,38 +269,7 @@ const OverviewTab = ({ userStats, activitesRecentes, user, onEditProfile }) => (
       />
     </div>
 
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      {/* Activité récente */}
-      <div className="bg-white rounded-lg shadow-sm p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Activité Récente</h3>
-        <div className="space-y-4">
-          {activitesRecentes.map((activite) => (
-            <div key={activite.id} className="flex items-start gap-3">
-              <div className={`w-2 h-2 rounded-full mt-2 ${
-                activite.type === 'achat' ? 'bg-red-500' :
-                activite.type === 'vente' ? 'bg-green-500' :
-                'bg-blue-500'
-              }`} />
-              <div className="flex-1">
-                <p className="text-sm text-gray-900">{activite.message}</p>
-                <div className="flex items-center justify-between mt-1">
-                  <p className="text-xs text-gray-500">
-                    {new Date(activite.date).toLocaleDateString('fr-FR')}
-                  </p>
-                  {activite.credits !== 0 && (
-                    <span className={`text-xs font-medium ${
-                      activite.credits > 0 ? 'text-green-600' : 'text-red-600'
-                    }`}>
-                      {activite.credits > 0 ? '+' : ''}{activite.credits} crédits
-                    </span>
-                  )}
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
+    <div className="grid grid-cols-1 gap-6">
       {/* Profil et progression */}
       <div className="bg-white rounded-lg shadow-sm p-6">
         <div className="flex items-center justify-between mb-4">
@@ -322,19 +302,6 @@ const OverviewTab = ({ userStats, activitesRecentes, user, onEditProfile }) => (
               <p className="text-sm text-gray-600">{user.bio}</p>
             </div>
           )}
-          
-          <div className="border-t pt-4">
-            <div className="grid grid-cols-2 gap-4 text-center">
-              <div>
-                <div className="text-2xl font-bold text-gray-900">{userStats.totalEchanges}</div>
-                <div className="text-sm text-gray-500">Échanges totaux</div>
-              </div>
-              <div>
-                <div className="text-2xl font-bold text-purple-600">{user?.solde_credits || 0}</div>
-                <div className="text-sm text-gray-500">Crédits restants</div>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </div>

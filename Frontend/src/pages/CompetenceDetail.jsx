@@ -1,14 +1,32 @@
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import competenceService from '../services/competenceService';
+import useAuthStore from '../stores/authStore';
 
 const CompetenceDetail = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
+  const { user } = useAuthStore();
   const [competence, setCompetence] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showToast, setShowToast] = useState(false);
+
+  // Fonction pour gérer le clic sur "Envoyer un message"
+  const handleSendMessage = () => {
+    if (!user) {
+      // Utilisateur non connecté - afficher la notification toast
+      setShowToast(true);
+      // Masquer la notification après 4 secondes
+      setTimeout(() => setShowToast(false), 4000);
+      return;
+    }
+    
+    // Utilisateur connecté - rediriger vers le chat
+    navigate('/chat');
+  };
 
   // Charger les données de la compétence
   useEffect(() => {
@@ -178,11 +196,6 @@ const CompetenceDetail = () => {
                   </p>
                 </div>
               </div>
-
-              {/* Bouton profil */}
-              <button className="bg-white text-purple-600 px-6 py-3 rounded-lg font-semibold font-['Inter'] hover:bg-gray-100 transition-colors">
-                Voir le profil du formateur
-              </button>
             </div>
 
             {/* Sidebar */}
@@ -201,7 +214,10 @@ const CompetenceDetail = () => {
                   </p>
                 </div>
 
-                <button className="w-full py-4 bg-blue-600 text-white font-semibold font-['Inter'] rounded-lg hover:bg-blue-700 transition-colors duration-200 mb-4">
+                <button 
+                  onClick={handleSendMessage}
+                  className="w-full py-4 bg-blue-600 text-white font-semibold font-['Inter'] rounded-lg hover:bg-blue-700 transition-colors duration-200 mb-4 cursor-pointer"
+                >
                   Envoyer un message
                 </button>
 
@@ -313,6 +329,47 @@ const CompetenceDetail = () => {
           </div>
         </div>
       </div>
+
+      {/* Toast de notification pour utilisateur non connecté */}
+      {showToast && (
+        <div className="fixed top-4 right-4 z-50 bg-red-500 text-white px-6 py-4 rounded-lg shadow-lg transform transition-all duration-300 ease-in-out">
+          <div className="flex items-center gap-3">
+            <div className="w-6 h-6 bg-white rounded-full flex items-center justify-center shrink-0">
+              <span className="text-red-500 text-sm font-bold">!</span>
+            </div>
+            <div>
+              <p className="font-semibold">Connexion requise</p>
+              <p className="text-sm opacity-90">Vous devez vous connecter pour envoyer un message</p>
+            </div>
+            <button 
+              onClick={() => setShowToast(false)}
+              className="ml-2 text-white hover:text-gray-200"
+            >
+              ✕
+            </button>
+          </div>
+          <div className="mt-3 flex gap-2">
+            <button 
+              onClick={() => {
+                setShowToast(false);
+                navigate('/login');
+              }}
+              className="bg-white text-red-500 px-3 py-1 rounded text-sm font-medium hover:bg-gray-100"
+            >
+              Se connecter
+            </button>
+            <button 
+              onClick={() => {
+                setShowToast(false);
+                navigate('/register');
+              }}
+              className="bg-red-600 text-white px-3 py-1 rounded text-sm font-medium hover:bg-red-700"
+            >
+              S'inscrire
+            </button>
+          </div>
+        </div>
+      )}
 
       <Footer />
     </div>

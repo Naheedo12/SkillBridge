@@ -92,11 +92,13 @@ const Header = () => {
           <div className="flex items-center space-x-3 mr-10">
 
             {/* Crédits (statique pour l’instant) */}
-            <div className="px-3 py-1 rounded-lg bg-purple-100">
-              <span className="text-sm font-semibold text-purple-700">
-                {user?.solde_credits || 0} crédits
-              </span>
-            </div>
+            {!isAdmin() && (
+              <div className="px-3 py-1 rounded-lg bg-purple-100">
+                <span className="text-sm font-semibold text-purple-700">
+                  {user?.solde_credits || 0} crédits
+                </span>
+              </div>
+            )}
 
             {/* Icônes */}
             <Link to="/notifications" className="relative p-2 text-gray-500 hover:text-gray-700">

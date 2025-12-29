@@ -27,16 +27,9 @@ Route::get('/competences', [CompetenceController::class, 'index']);
 Route::get('/competences/{id}', [CompetenceController::class, 'show']);
 Route::get('/competences-stats/categories', [CompetenceController::class, 'getCategoriesStats']);
 Route::get('/competences-recent/{limit?}', [CompetenceController::class, 'getRecentCompetences']);
-
-// Route de test pour déboguer
-Route::get('/test-competences', function() {
-    $competences = \App\Models\Competence::with('user:id,nom,prenom,photo')->take(3)->get();
-    return response()->json([
-        'success' => true,
-        'count' => $competences->count(),
-        'data' => $competences
-    ]);
-});
+Route::get('/admin-stats', [CompetenceController::class, 'getAdminStats']);
+Route::get('/admin-activity', [CompetenceController::class, 'getRecentActivity']);
+Route::get('/admin-top-competences', [CompetenceController::class, 'getTopCompetences']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('auth')->group(function () {
@@ -54,11 +47,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('/{id}', [UserController::class, 'destroy']); 
     });
 
-    // Routes pour les compétences (création, modification, suppression)
-    Route::prefix('competences')->group(function () {
-        Route::post('/', [CompetenceController::class, 'store']);
-        Route::put('/{id}', [CompetenceController::class, 'update']);
-        Route::delete('/{id}', [CompetenceController::class, 'destroy']);
-        Route::get('/mes-competences', [CompetenceController::class, 'mesCompetences']);
-    });
+    // Routes pour les compétences - définition explicite
+    Route::post('/competences', [CompetenceController::class, 'store']);
+    Route::get('/competences/mes-competences', [CompetenceController::class, 'mesCompetences']);
+    Route::put('/competences/{id}', [CompetenceController::class, 'update']);
+    Route::delete('/competences/{id}', [CompetenceController::class, 'destroy']);
 });

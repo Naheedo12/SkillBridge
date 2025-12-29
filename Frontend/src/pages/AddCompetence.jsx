@@ -39,12 +39,29 @@ const handleSubmit = async (e) => {
   try {
     const response = await competenceService.createCompetence(formData);
     if (response.success) {
-      navigate('/dashboard', { 
-        state: { 
-          message: 'Compétence créée avec succès!',
-          showNotification: true
-        }
-      });
+      console.log('✅ Compétence créée avec succès:', response);
+      
+      // Rediriger selon le type d'utilisateur
+      if (isAdmin) {
+        // Admin : reste dans son dashboard admin, section gestion des compétences
+        navigate('/admin?tab=competences', { 
+          state: { message: 'Compétence créée avec succès!' }
+        });
+      } else {
+        // Utilisateur normal : vers son dashboard avec l'onglet "Mes Compétences" actif
+        console.log('🎉 Déclenchement de l\'événement competenceCreated');
+        window.dispatchEvent(new CustomEvent('competenceCreated', { 
+          detail: response.data 
+        }));
+        
+        navigate('/dashboard', { 
+          state: { 
+            message: 'Compétence créée avec succès!',
+            showNotification: true,
+            activeTab: 'mes-competences'
+          }
+        });
+      }
     } else {
       setError(response.message || 'Erreur lors de la création de la compétence');
     }
