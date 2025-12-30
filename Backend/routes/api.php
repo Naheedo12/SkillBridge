@@ -47,7 +47,19 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('/{id}', [UserController::class, 'destroy']); 
     });
 
-    // Routes pour les compétences - définition explicite
+    // Routes pour le chat
+    Route::prefix('chat')->group(function () {
+        Route::get('/conversations', [\App\Http\Controllers\ChatController::class, 'getConversations']);
+        Route::get('/messages/{userId}', [\App\Http\Controllers\ChatController::class, 'getMessages']);
+        Route::post('/send', [\App\Http\Controllers\ChatController::class, 'sendMessage']);
+        Route::post('/echange', [\App\Http\Controllers\ChatController::class, 'createEchange']);
+        Route::post('/echange/{id}/accept', [\App\Http\Controllers\ChatController::class, 'acceptEchange']);
+        Route::post('/echange/{id}/refuse', [\App\Http\Controllers\ChatController::class, 'refuseEchange']);
+        Route::get('/echange-status/{userId}', [\App\Http\Controllers\ChatController::class, 'getEchangeStatus']);
+        Route::get('/mes-achats', [\App\Http\Controllers\ChatController::class, 'getMesAchats']);
+        Route::get('/unread-count', [\App\Http\Controllers\ChatController::class, 'getUnreadMessagesCount']);
+    });
+
     Route::post('/competences', [CompetenceController::class, 'store']);
     Route::get('/competences/mes-competences', [CompetenceController::class, 'mesCompetences']);
     Route::put('/competences/{id}', [CompetenceController::class, 'update']);

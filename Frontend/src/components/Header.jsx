@@ -1,15 +1,27 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { Bell, MessageSquare, User } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { toast } from 'react-toastify';
 import useAuthStore from '../stores/authStore';
+import chatService from '../services/chatService';
 import logoImage from './logo.png';
 
 const Header = () => {
   const user = useAuthStore(state => state.user);
   const logout = useAuthStore(state => state.logout);
   const navigate = useNavigate();
+  const [unreadCount, setUnreadCount] = useState(0);
 
   const handleLogout = async () => {
     await logout();
+    toast.success('Déconnexion réussie ! À bientôt !', {
+      position: "top-right",
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+    });
     navigate('/');
   };
 
@@ -17,6 +29,28 @@ const Header = () => {
   const isAdmin = () => {
     return user?.role === 'Administrateur' || user?.role === 'admin';
   };
+
+  // Charger le nombre de messages non lus
+  useEffect(() => {
+    const loadUnreadCount = async () => {
+      if (user && !isAdmin()) {
+        try {
+          const response = await chatService.getUnreadMessagesCount();
+          if (response.success) {
+            setUnreadCount(response.data.count);
+          }
+        } catch (error) {
+          // Ignorer les erreurs silencieusement
+        }
+      }
+    };
+
+    loadUnreadCount();
+
+    // Rafraîchir le compteur toutes les 30 secondes
+    const interval = setInterval(loadUnreadCount, 30000);
+    return () => clearInterval(interval);
+  }, [user]);
 
   // header avant connexion
   if (!user) {
@@ -108,8 +142,13 @@ const Header = () => {
 
             {/* Icône de messagerie - seulement pour les utilisateurs normaux */}
             {!isAdmin() && (
-              <Link to="/chat" className="p-2 text-gray-500 hover:text-gray-700">
+              <Link to="/chat" className="relative p-2 text-gray-500 hover:text-gray-700">
                 <MessageSquare className="h-5 w-5" />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-medium">
+                    {unreadCount > 99 ? '99+' : unreadCount}
+                  </span>
+                )}
               </Link>
             )}
 

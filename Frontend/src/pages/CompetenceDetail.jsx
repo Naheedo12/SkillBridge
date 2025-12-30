@@ -24,8 +24,13 @@ const CompetenceDetail = () => {
       return;
     }
     
-    // Utilisateur connecté - rediriger vers le chat
-    navigate('/chat');
+    // Utilisateur connecté - rediriger vers le chat avec les données
+    navigate('/chat', {
+      state: {
+        user: competence.user,
+        competence: competence
+      }
+    });
   };
 
   // Charger les données de la compétence

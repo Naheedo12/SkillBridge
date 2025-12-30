@@ -58,13 +58,12 @@ class AuthService {
           throw new Error('Session expirée');
         }
         
-        // Pour les erreurs de validation (422), récupérer les détails
-        if (response.status === 422) {
+        // Pour les erreurs 400 et 422, récupérer le message du serveur
+        if (response.status === 400 || response.status === 422) {
           const errorData = await response.json();
-          console.log('Erreurs de validation:', errorData);
-          const errorMessage = errorData.errors 
-            ? Object.values(errorData.errors).flat().join(', ')
-            : errorData.message || 'Erreur de validation';
+          console.log('Erreur du serveur:', errorData);
+          const errorMessage = errorData.message || 
+            (errorData.errors ? Object.values(errorData.errors).flat().join(', ') : 'Erreur de validation');
           throw new Error(errorMessage);
         }
         

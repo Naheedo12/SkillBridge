@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Mail, Lock, User, CheckCircle2 } from "lucide-react";
+import { toast } from 'react-toastify';
 import useAuthStore from "../stores/authStore";
 
 import Header from "../components/Header";
@@ -46,7 +47,17 @@ const Register = () => {
 
     setLoading(false);
 
-    if (result.success) navigate("/home");
+    if (result.success) {
+      toast.success('Inscription réussie ! Bienvenue sur SkillBridge !', {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
+      navigate("/home");
+    }
   };
 
   return (

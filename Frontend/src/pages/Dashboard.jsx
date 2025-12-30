@@ -3,6 +3,7 @@ import { BookOpen, CreditCard, TrendingUp, Award, Eye, Edit, Trash2, Plus, X } f
 import { useNavigate } from 'react-router-dom';
 import useAuthStore from '../stores/authStore';
 import competenceService from '../services/competenceService';
+import chatService from '../services/chatService';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 
@@ -15,6 +16,7 @@ const Dashboard = () => {
   const [modalType, setModalType] = useState('');
   const [selectedCompetence, setSelectedCompetence] = useState(null);
   const [mesCompetences, setMesCompetences] = useState([]);
+  const [mesAchats, setMesAchats] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -31,7 +33,39 @@ const Dashboard = () => {
           }
         } catch (error) {
           console.error('Erreur lors du chargement des compétences:', error);
-          setError('Erreur lors du chargement de vos compétences');
+          if (error.message === 'Session expirée') {
+            setError('Session expirée. Veuillez vous reconnecter.');
+            setTimeout(() => {
+              navigate('/login');
+            }, 3000);
+          } else {
+            setError('Erreur lors du chargement de vos compétences');
+          }
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+
+    const fetchMesAchats = async () => {
+      if (activeTab === 'achats') {
+        try {
+          setLoading(true);
+          setError('');
+          const response = await chatService.getMesAchats();
+          if (response?.success) {
+            setMesAchats(response.data || []);
+          }
+        } catch (error) {
+          console.error('Erreur lors du chargement des achats:', error);
+          if (error.message === 'Session expirée') {
+            setError('Session expirée. Veuillez vous reconnecter.');
+            setTimeout(() => {
+              navigate('/login');
+            }, 3000);
+          } else {
+            setError('Erreur lors du chargement de vos achats');
+          }
         } finally {
           setLoading(false);
         }
@@ -39,7 +73,8 @@ const Dashboard = () => {
     };
 
     fetchMesCompetences();
-  }, [activeTab]);
+    fetchMesAchats();
+  }, [activeTab, navigate]);
 
   // Charger les compétences au montage initial pour les statistiques
   useEffect(() => {
@@ -51,11 +86,16 @@ const Dashboard = () => {
         }
       } catch (error) {
         console.error('Erreur lors du chargement initial des compétences:', error);
+        if (error.message === 'Session expirée') {
+          setTimeout(() => {
+            navigate('/login');
+          }, 2000);
+        }
       }
     };
 
     fetchInitialCompetences();
-  }, []);
+  }, [navigate]);
 
   // Fonction pour supprimer une compétence
   const handleDeleteCompetence = async (competenceId) => {
@@ -219,7 +259,7 @@ const Dashboard = () => {
             />
           )}
           {activeTab === 'achats' && (
-            <AchatsTab competences={competencesAchetees} />
+            <AchatsTab achats={mesAchats} />
           )}
         </div>
       </section>
@@ -417,57 +457,52 @@ const MesCompetencesTab = ({ competences, loading, onDeleteCompetence, onViewCom
 };
 
 // Composant Mes Achats
-const AchatsTab = ({ competences }) => (
+const AchatsTab = ({ achats }) => (
   <div className="space-y-6">
-    <h2 className="text-xl font-semibold text-gray-900">Mes Compétences Achetées</h2>
+    <h2 className="text-xl font-semibold text-gray-900">Mes Achats</h2>
 
     <div className="space-y-4">
-      {competences.length === 0 ? (
+      {achats.length === 0 ? (
         <div className="bg-white rounded-lg shadow-sm p-12 text-center">
           <CreditCard className="mx-auto h-12 w-12 text-gray-400 mb-4" />
           <h3 className="text-lg font-medium text-gray-900 mb-2">Aucun achat</h3>
           <p className="text-gray-600">Vous n'avez pas encore acheté de compétences</p>
         </div>
       ) : (
-        competences.map((competence) => (
-          <div key={competence.id} className="bg-white rounded-lg shadow-sm p-6">
+        achats.map((achat) => (
+          <div key={achat.id} className="bg-white rounded-lg shadow-sm p-6">
             <div className="flex items-start justify-between">
               <div className="flex-1">
-                <h3 className="font-semibold text-gray-900 mb-1">{competence.titre}</h3>
-                <p className="text-sm text-gray-600 mb-2">Par {competence.auteur}</p>
+                <h3 className="font-semibold text-gray-900 mb-1">{achat.competence?.titre}</h3>
+                <p className="text-sm text-gray-600 mb-2">
+                  Par {achat.enseignant?.prenom} {achat.enseignant?.nom}
+                </p>
                 
                 <div className="flex items-center gap-4 text-sm text-gray-500">
-                  <span>Acheté le {new Date(competence.date_achat).toLocaleDateString('fr-FR')}</span>
-                  <span>{competence.prix_credits} crédits</span>
+                  <span>Acheté le {new Date(achat.created_at).toLocaleDateString('fr-FR')}</span>
+                  <span>{achat.credits} crédits</span>
+                  <span className={`px-2 py-1 rounded-full text-xs ${
+                    achat.statut === 'accepte' ? 'bg-green-100 text-green-800' :
+                    achat.statut === 'refuse' ? 'bg-red-100 text-red-800' :
+                    'bg-yellow-100 text-yellow-800'
+                  }`}>
+                    {achat.statut === 'accepte' ? 'Accepté' :
+                     achat.statut === 'refuse' ? 'Refusé' :
+                     'En attente'}
+                  </span>
                 </div>
 
-                {/* Barre de progression */}
-                <div className="mt-4">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-sm text-gray-600">Progression</span>
-                    <span className="text-sm font-medium text-gray-900">{competence.progression}%</span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div 
-                      className="bg-purple-600 h-2 rounded-full transition-all duration-300"
-                      style={{ width: `${competence.progression}%` }}
-                    ></div>
-                  </div>
-                </div>
+                <p className="text-sm text-gray-600 mt-2">
+                  {achat.competence?.description}
+                </p>
               </div>
 
               <div className="flex flex-col items-end gap-2">
-                <span className={`px-3 py-1 text-xs font-medium rounded-full ${
-                  competence.statut === 'terminé' 
-                    ? 'bg-green-100 text-green-800' 
-                    : 'bg-blue-100 text-blue-800'
-                }`}>
-                  {competence.statut === 'terminé' ? 'Terminé' : 'En cours'}
-                </span>
-                
-                <button className="px-4 py-2 bg-purple-600 text-white text-sm rounded-lg hover:bg-purple-700">
-                  {competence.statut === 'terminé' ? 'Revoir' : 'Continuer'}
-                </button>
+                <img
+                  src={achat.competence?.image || '/default-competence.png'}
+                  alt={achat.competence?.titre}
+                  className="w-16 h-16 rounded-lg object-cover"
+                />
               </div>
             </div>
           </div>

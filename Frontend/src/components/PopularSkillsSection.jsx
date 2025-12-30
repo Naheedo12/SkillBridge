@@ -61,7 +61,6 @@ const PopularSkillsSection = () => {
       debutant: 'Débutant',
       intermediaire: 'Intermédiaire',
       avance: 'Avancé',
-      expert: 'Expert',
     };
     return levelMap[niveau] || niveau || '—';
   };

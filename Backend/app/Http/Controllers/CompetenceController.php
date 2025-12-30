@@ -38,7 +38,6 @@ class CompetenceController extends Controller
                     'Débutant' => 'debutant',
                     'Intermédiaire' => 'intermediaire',
                     'Avancé' => 'avance',
-                    'Expert' => 'expert',
                 ];
 
                 $level = $levelMap[$request->level] ?? $request->level;
