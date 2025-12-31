@@ -6,6 +6,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\CompetenceController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\ContactController;
 
 /*
 |--------------------------------------------------------------------------
@@ -31,6 +32,9 @@ Route::get('/competences-recent/{limit?}', [CompetenceController::class, 'getRec
 Route::get('/admin-stats', [CompetenceController::class, 'getAdminStats']);
 Route::get('/admin-activity', [CompetenceController::class, 'getRecentActivity']);
 Route::get('/admin-top-competences', [CompetenceController::class, 'getTopCompetences']);
+
+// Route publique pour le contact
+Route::post('/contact', [ContactController::class, 'sendMessage']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('auth')->group(function () {
