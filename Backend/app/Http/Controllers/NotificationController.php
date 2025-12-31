@@ -3,64 +3,131 @@
 namespace App\Http\Controllers;
 
 use App\Models\Notification;
-use App\Http\Requests\StoreNotificationRequest;
-use App\Http\Requests\UpdateNotificationRequest;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class NotificationController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Récupérer toutes les notifications de l'utilisateur connecté
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $userId = Auth::id();
+        
+        $query = Notification::where('user_id', $userId)
+            ->orderBy('created_at', 'desc');
+        
+        // Filtrer par statut de lecture si spécifié
+        if ($request->has('unread_only') && $request->unread_only) {
+            $query->where('lu', false);
+        }
+        
+        $notifications = $query->get();
+        
+        return response()->json([
+            'success' => true,
+            'data' => $notifications
+        ]);
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Compter les notifications non lues
      */
-    public function create()
+    public function getUnreadCount()
     {
-        //
+        $userId = Auth::id();
+        
+        $count = Notification::where('user_id', $userId)
+            ->where('lu', false)
+            ->count();
+        
+        return response()->json([
+            'success' => true,
+            'data' => ['count' => $count]
+        ]);
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Marquer une notification comme lue
      */
-    public function store(StoreNotificationRequest $request)
+    public function markAsRead($id)
     {
-        //
+        $userId = Auth::id();
+        
+        $notification = Notification::where('id', $id)
+            ->where('user_id', $userId)
+            ->first();
+        
+        if (!$notification) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Notification non trouvée'
+            ], 404);
+        }
+        
+        $notification->update(['lu' => true]);
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Notification marquée comme lue'
+        ]);
     }
 
     /**
-     * Display the specified resource.
+     * Marquer toutes les notifications comme lues
      */
-    public function show(Notification $notification)
+    public function markAllAsRead()
     {
-        //
+        $userId = Auth::id();
+        
+        Notification::where('user_id', $userId)
+            ->where('lu', false)
+            ->update(['lu' => true]);
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Toutes les notifications ont été marquées comme lues'
+        ]);
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Supprimer une notification
      */
-    public function edit(Notification $notification)
+    public function delete($id)
     {
-        //
+        $userId = Auth::id();
+        
+        $notification = Notification::where('id', $id)
+            ->where('user_id', $userId)
+            ->first();
+        
+        if (!$notification) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Notification non trouvée'
+            ], 404);
+        }
+        
+        $notification->delete();
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Notification supprimée'
+        ]);
     }
 
     /**
-     * Update the specified resource in storage.
+     * Créer une nouvelle notification
      */
-    public function update(UpdateNotificationRequest $request, Notification $notification)
+    public static function createNotification($userId, $type, $contenu)
     {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Notification $notification)
-    {
-        //
+        return Notification::create([
+            'user_id' => $userId,
+            'type' => $type,
+            'contenu' => $contenu,
+            'date' => now(),
+            'lu' => false
+        ]);
     }
 }

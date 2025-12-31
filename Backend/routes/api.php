@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\CompetenceController;
+use App\Http\Controllers\NotificationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -58,6 +59,15 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/echange-status/{userId}', [\App\Http\Controllers\ChatController::class, 'getEchangeStatus']);
         Route::get('/mes-achats', [\App\Http\Controllers\ChatController::class, 'getMesAchats']);
         Route::get('/unread-count', [\App\Http\Controllers\ChatController::class, 'getUnreadMessagesCount']);
+    });
+
+    // Routes pour les notifications
+    Route::prefix('notifications')->group(function () {
+        Route::get('/', [NotificationController::class, 'index']);
+        Route::get('/unread-count', [NotificationController::class, 'getUnreadCount']);
+        Route::put('/{id}/read', [NotificationController::class, 'markAsRead']);
+        Route::put('/mark-all-read', [NotificationController::class, 'markAllAsRead']);
+        Route::delete('/{id}', [NotificationController::class, 'delete']);
     });
 
     Route::post('/competences', [CompetenceController::class, 'store']);

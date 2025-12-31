@@ -1,9 +1,10 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { Bell, MessageSquare, User } from 'lucide-react';
+import { MessageSquare, User } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import useAuthStore from '../stores/authStore';
 import chatService from '../services/chatService';
+import NotificationIcon from './NotificationIcon';
 import logoImage from './logo.png';
 
 const Header = () => {
@@ -125,7 +126,7 @@ const Header = () => {
           {/* Actions */}
           <div className="flex items-center space-x-3 mr-10">
 
-            {/* Crédits (statique pour l’instant) */}
+            {/* Crédits (statique) */}
             {!isAdmin() && (
               <div className="px-3 py-1 rounded-lg bg-purple-100">
                 <span className="text-sm font-semibold text-purple-700">
@@ -135,10 +136,7 @@ const Header = () => {
             )}
 
             {/* Icônes */}
-            <Link to="/notifications" className="relative p-2 text-gray-500 hover:text-gray-700">
-              <Bell className="h-5 w-5" />
-              <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-            </Link>
+            <NotificationIcon />
 
             {/* Icône de messagerie - seulement pour les utilisateurs normaux */}
             {!isAdmin() && (

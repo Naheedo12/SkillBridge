@@ -13,7 +13,6 @@ const Login = () => {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [rememberMe, setRememberMe] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
@@ -85,23 +84,6 @@ const Login = () => {
                 icon={Lock}
               />
 
-              {/* Remember Me & Forgot Password */}
-              <div className="flex items-center justify-between">
-                <label className="flex items-center">
-                  <input
-                    type="checkbox"
-                    checked={rememberMe}
-                    onChange={(e) => setRememberMe(e.target.checked)}
-                    className="h-4 w-4 border-gray-300 rounded"
-                    style={{ color: "#9810fa", "--tw-ring-color": "#9810fa" }}
-                  />
-                  <span className="ml-2 text-sm text-gray-700">Se souvenir de moi</span>
-                </label>
-                <Link to="/mot-de-passe-oublie" className="text-sm" style={{ color: "#9810fa" }}>
-                  Mot de passe oublié ?
-                </Link>
-              </div>
-
               {/* Submit */}
               <button
                 type="submit"
@@ -129,7 +111,7 @@ const Login = () => {
   );
 };
 
-// Composant réutilisable pour simplifier les champs du formulaire
+// Composant réutilisable 
 const InputField = ({ label, type, placeholder, value, onChange, icon: Icon }) => (
   <div>
     <label className="block text-sm font-medium text-gray-700 mb-2">{label}</label>

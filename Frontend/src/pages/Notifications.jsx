@@ -1,100 +1,109 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { toast } from 'react-toastify';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import useNotificationStore from '../stores/notificationStore';
+import useAuthStore from '../stores/authStore';
 
 const Notifications = () => {
   const [activeTab, setActiveTab] = useState('Toutes');
-  const [notifications, setNotifications] = useState([
-    {
-      id: 1,
-      type: 'message',
-      icon: '💬',
-      iconBg: 'bg-blue-500',
-      title: 'Nouveau message de Salma ELQADI',
-      description: "D'accord, à mercredi alors !",
-      time: 'Il y a 5 min',
-      isNew: true,
-      avatar: 'https://ui-avatars.com/api/?name=Salma+ELQADI&background=9810fa&color=fff'
-    },
-    {
-      id: 2,
-      type: 'exchange',
-      icon: '✅',
-      iconBg: 'bg-green-500',
-      title: "Proposition d'échange acceptée",
-      description: 'Khadija ELQADI a accepté votre proposition pour le cours de Design UI/UX',
-      time: 'Il y a 2h',
-      isNew: true,
-      avatar: 'https://ui-avatars.com/api/?name=Khadija+ELQADI&background=9810fa&color=fff'
-    },
-    {
-      id: 3,
-      type: 'rating',
-      icon: '⭐',
-      iconBg: 'bg-yellow-500',
-      title: 'Nouvelle évaluation 5★',
-      description: 'Bouchra FETTAH vous a laissé un avis positif',
-      time: 'Il y a 1 jour',
-      isNew: false,
-      avatar: 'https://ui-avatars.com/api/?name=Bouchra+FETTAH&background=9810fa&color=fff'
-    },
-    {
-      id: 4,
-      type: 'credits',
-      icon: '💰',
-      iconBg: 'bg-yellow-400',
-      title: 'Crédits reçus',
-      description: "Vous avez reçu 4 crédits pour l'échange terminé avec Khadija ELQADI",
-      time: 'Il y a 2 jours',
-      isNew: false,
-      avatar: null
-    },
-    {
-      id: 5,
-      type: 'exchange',
-      icon: '🔄',
-      iconBg: 'bg-orange-500',
-      title: "Nouvelle proposition d'échange",
-      description: "Bouchra Fettah souhaite échanger avec vous pour le cours d'anglais",
-      time: 'Il y a 3 jours',
-      isNew: false,
-      avatar: 'https://ui-avatars.com/api/?name=Bouchra+Fettah&background=9810fa&color=fff'
-    },
-    {
-      id: 6,
-      type: 'exchange',
-      icon: '🔄',
-      iconBg: 'bg-orange-500',
-      title: "Nouvelle proposition d'échange",
-      description: "Bouchra FETTAH souhaite échanger avec vous pour le cours d'anglais",
-      time: 'Il y a 3 jours',
-      isNew: false,
-      avatar: 'https://ui-avatars.com/api/?name=Bouchra+FETTAH&background=9810fa&color=fff'
+  const { 
+    notifications, 
+    unreadCount, 
+    loading, 
+    error,
+    loadNotifications, 
+    markAsRead, 
+    markAllAsRead, 
+    deleteNotification 
+  } = useNotificationStore();
+  const { isAuthenticated } = useAuthStore();
+
+  useEffect(() => {
+    if (isAuthenticated()) {
+      loadNotifications();
     }
-  ]);
+  }, [isAuthenticated, loadNotifications]);
 
-  const newNotificationsCount = notifications.filter(n => n.isNew).length;
-
-  const markAllAsRead = () => {
-    setNotifications(notifications.map(n => ({ ...n, isNew: false })));
+  const handleMarkAllAsRead = async () => {
+    const result = await markAllAsRead();
+    if (result.success) {
+      toast.success('Toutes les notifications ont été marquées comme lues');
+    } else {
+      toast.error('Erreur lors du marquage des notifications');
+    }
   };
 
-  const deleteNotification = (id) => {
-    setNotifications(notifications.filter(n => n.id !== id));
+  const handleDeleteNotification = async (id) => {
+    const result = await deleteNotification(id);
+    if (result.success) {
+      toast.success('Notification supprimée');
+    } else {
+      toast.error('Erreur lors de la suppression');
+    }
   };
 
-  const markAsRead = (id) => {
-    setNotifications(notifications.map(n => 
-      n.id === id ? { ...n, isNew: false } : n
-    ));
+  const handleMarkAsRead = async (id) => {
+    const result = await markAsRead(id);
+    if (result.success) {
+      toast.success('Notification marquée comme lue');
+    }
+  };
+
+  // Fonction pour obtenir l'icône selon le type de notification
+  const getNotificationIcon = (type) => {
+    switch (type) {
+      case 'message':
+        return { icon: '💬', bg: 'bg-blue-500' };
+      case 'exchange':
+        return { icon: '🔄', bg: 'bg-orange-500' };
+      case 'rating':
+        return { icon: '⭐', bg: 'bg-yellow-500' };
+      case 'credits':
+        return { icon: '💰', bg: 'bg-yellow-400' };
+      case 'system':
+        return { icon: '🔔', bg: 'bg-gray-500' };
+      default:
+        return { icon: '📢', bg: 'bg-purple-500' };
+    }
+  };
+
+  // Fonction pour formater la date
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInMinutes = Math.floor((now - date) / (1000 * 60));
+    
+    if (diffInMinutes < 1) return 'À l\'instant';
+    if (diffInMinutes < 60) return `Il y a ${diffInMinutes} min`;
+    
+    const diffInHours = Math.floor(diffInMinutes / 60);
+    if (diffInHours < 24) return `Il y a ${diffInHours}h`;
+    
+    const diffInDays = Math.floor(diffInHours / 24);
+    if (diffInDays < 7) return `Il y a ${diffInDays} jour${diffInDays > 1 ? 's' : ''}`;
+    
+    return date.toLocaleDateString('fr-FR');
   };
 
   const filteredNotifications = notifications.filter(notification => {
     if (activeTab === 'Toutes') return true;
-    if (activeTab === 'Non lues') return notification.isNew;
-    if (activeTab === 'Lues') return !notification.isNew;
+    if (activeTab === 'Non lues') return !notification.lu;
+    if (activeTab === 'Lues') return notification.lu;
     return true;
   });
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Header />
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -114,18 +123,20 @@ const Notifications = () => {
                 Notifications
               </h1>
               <p className="text-white/90 font-['Inter']">
-                Vous avez {newNotificationsCount} nouvelles notifications
+                Vous avez {unreadCount} nouvelle{unreadCount > 1 ? 's' : ''} notification{unreadCount > 1 ? 's' : ''}
               </p>
             </div>
-            <button 
-              onClick={markAllAsRead}
-              className="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-lg font-['Inter'] transition-colors duration-200 flex items-center gap-2"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-              Tout marquer comme lu
-            </button>
+            {unreadCount > 0 && (
+              <button 
+                onClick={handleMarkAllAsRead}
+                className="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-lg font-['Inter'] transition-colors duration-200 flex items-center gap-2"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+                Tout marquer comme lu
+              </button>
+            )}
           </div>
         </div>
       </section>
@@ -158,9 +169,9 @@ const Notifications = () => {
                   : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
               }`}
             >
-              Non lues {newNotificationsCount > 0 && (
+              Non lues {unreadCount > 0 && (
                 <span className="ml-1 bg-white/20 text-xs px-2 py-0.5 rounded-full">
-                  {newNotificationsCount}
+                  {unreadCount}
                 </span>
               )}
             </button>
@@ -178,76 +189,71 @@ const Notifications = () => {
 
           {/* Liste des notifications */}
           <div className="space-y-4">
-            {filteredNotifications.map((notification) => (
-              <div 
-                key={notification.id}
-                className={`bg-white rounded-lg p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-200 ${
-                  notification.isNew ? 'border-l-4 border-l-blue-500' : ''
-                }`}
-              >
-                <div className="flex items-start gap-4">
-                  {/* Icône ou Avatar */}
-                  <div className="shrink-0">
-                    {notification.avatar ? (
-                      <img 
-                        src={notification.avatar} 
-                        alt="Avatar"
-                        className="w-12 h-12 rounded-full"
-                      />
-                    ) : (
-                      <div className={`w-12 h-12 ${notification.iconBg} rounded-full flex items-center justify-center`}>
-                        <span className="text-white text-lg">{notification.icon}</span>
+            {filteredNotifications.map((notification) => {
+              const { icon, bg } = getNotificationIcon(notification.type);
+              return (
+                <div 
+                  key={notification.id}
+                  className={`bg-white rounded-lg p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-200 ${
+                    !notification.lu ? 'border-l-4 border-l-blue-500' : ''
+                  }`}
+                >
+                  <div className="flex items-start gap-4">
+                    {/* Icône */}
+                    <div className="shrink-0">
+                      <div className={`w-12 h-12 ${bg} rounded-full flex items-center justify-center`}>
+                        <span className="text-white text-lg">{icon}</span>
                       </div>
-                    )}
-                  </div>
+                    </div>
 
-                  {/* Contenu */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <h3 className="text-lg font-semibold text-gray-900 font-['Inter'] mb-1">
-                          {notification.title}
-                        </h3>
-                        <p className="text-gray-600 font-['Inter'] mb-2">
-                          {notification.description}
-                        </p>
-                        <p className="text-sm text-gray-500 font-['Inter']">
-                          {notification.time}
-                        </p>
-                      </div>
+                    {/* Contenu */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <h3 className="text-lg font-semibold text-gray-900 font-['Inter'] mb-1">
+                            {notification.type === 'message' ? 'Nouveau message' : notification.type}
+                          </h3>
+                          <p className="text-gray-600 font-['Inter'] mb-2">
+                            {notification.contenu}
+                          </p>
+                          <p className="text-sm text-gray-500 font-['Inter']">
+                            {formatDate(notification.created_at)}
+                          </p>
+                        </div>
 
-                      {/* Actions */}
-                      <div className="flex items-center gap-2 ml-4">
-                        {notification.isNew && (
-                          <div className="flex items-center gap-2">
-                            <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded-full font-['Inter']">
-                              Nouveau
-                            </span>
-                            <button
-                              onClick={() => markAsRead(notification.id)}
-                              className="text-blue-500 hover:text-blue-700 text-sm font-['Inter'] flex items-center gap-1"
-                            >
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                              </svg>
-                              Marquer comme lu
-                            </button>
-                          </div>
-                        )}
-                        <button
-                          onClick={() => deleteNotification(notification.id)}
-                          className="text-gray-400 hover:text-red-500 transition-colors duration-200"
-                        >
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                          </svg>
-                        </button>
+                        {/* Actions */}
+                        <div className="flex items-center gap-2 ml-4">
+                          {!notification.lu && (
+                            <div className="flex items-center gap-2">
+                              <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded-full font-['Inter']">
+                                Nouveau
+                              </span>
+                              <button
+                                onClick={() => handleMarkAsRead(notification.id)}
+                                className="text-blue-500 hover:text-blue-700 text-sm font-['Inter'] flex items-center gap-1"
+                              >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                </svg>
+                                Marquer comme lu
+                              </button>
+                            </div>
+                          )}
+                          <button
+                            onClick={() => handleDeleteNotification(notification.id)}
+                            className="text-gray-400 hover:text-red-500 transition-colors duration-200"
+                          >
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           {/* Message si aucune notification */}

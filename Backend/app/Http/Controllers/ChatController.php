@@ -75,8 +75,9 @@ class ChatController extends Controller
             'contenu' => 'required|string|max:1000'
         ]);
 
+        $expediteur = Auth::user();
         $message = Message::create([
-            'expediteur_id' => Auth::id(),
+            'expediteur_id' => $expediteur->id,
             'destinataire_id' => $request->destinataire_id,
             'contenu' => $request->contenu,
             'date' => now(),
@@ -84,6 +85,13 @@ class ChatController extends Controller
         ]);
 
         $message->load('expediteur:id,nom,prenom,photo');
+
+        // Créer une notification pour le destinataire
+        NotificationController::createNotification(
+            $request->destinataire_id,
+            'message',
+            "Nouveau message de {$expediteur->prenom} {$expediteur->nom}: " . substr($request->contenu, 0, 50) . (strlen($request->contenu) > 50 ? '...' : '')
+        );
 
         return response()->json([
             'success' => true,
