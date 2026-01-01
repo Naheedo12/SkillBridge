@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterRequest;
 use App\Models\User;
+use App\Events\UserRegistered;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Hash;
@@ -30,6 +31,9 @@ class AuthController extends Controller
             ]);
 
             $token = $user->createToken('auth_token')->plainTextToken;
+
+            // Déclencher l'événement UserRegistered pour envoyer l'email de bienvenue
+            event(new UserRegistered($user));
 
             return response()->json([
                 'success' => true,
