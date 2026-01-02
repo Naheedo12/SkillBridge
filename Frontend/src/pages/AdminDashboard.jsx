@@ -58,7 +58,7 @@ const AdminDashboard = () => {
     }
   };
 
-  // Vérifier si l'utilisateur est admin - accepter les deux formats de rôle
+  // Vérifier si l'utilisateur est admin/administrateur
   const isAdmin = currentUser?.role === 'Administrateur' || currentUser?.role === 'admin';
   
   if (!currentUser) {
@@ -89,12 +89,9 @@ const AdminDashboard = () => {
     );
   }
 
-  // Données statiques pour les compétences - SUPPRIMÉ
-  // Remplacé par des données dynamiques via l'API
-
   const handleOpenModal = (type, item = null) => {
     if (type === 'add' && activeTab === 'competences') {
-      // Rediriger vers la page d'ajout de compétence avec un paramètre pour indiquer que c'est un admin
+      // Rediriger vers page d'ajout de compétence avec un param pour indiquer que c'est un admin
       navigate('/add-competence?redirect=admin');
       return;
     }
@@ -420,7 +417,6 @@ const CompetencesTable = ({ competences, onEdit, onView, onDelete }) => {
     return levelMap[niveau] || niveau || '—';
   };
 
-  // Image par défaut selon la catégorie
   const getDefaultImage = (categorie) => {
     const imagesByCategory = {
       'Programmation': 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=100&h=100&fit=crop',

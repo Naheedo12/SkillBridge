@@ -2,13 +2,11 @@ import { create } from 'zustand';
 import notificationService from '../services/notificationService';
 
 const useNotificationStore = create((set, get) => ({
-  // État
   notifications: [],
   unreadCount: 0,
   loading: false,
   error: null,
 
-  // Actions
   setError: (error) => set({ error }),
   clearError: () => set({ error: null }),
 
@@ -47,7 +45,6 @@ const useNotificationStore = create((set, get) => ({
     }
   },
 
-  // Marquer une notification comme lue
   markAsRead: async (notificationId) => {
     try {
       const response = await notificationService.markAsRead(notificationId);
@@ -67,7 +64,6 @@ const useNotificationStore = create((set, get) => ({
     }
   },
 
-  // Marquer toutes les notifications comme lues
   markAllAsRead: async () => {
     try {
       const response = await notificationService.markAllAsRead();
@@ -83,7 +79,6 @@ const useNotificationStore = create((set, get) => ({
     }
   },
 
-  // Supprimer une notification
   deleteNotification: async (notificationId) => {
     try {
       const response = await notificationService.deleteNotification(notificationId);
@@ -104,7 +99,6 @@ const useNotificationStore = create((set, get) => ({
     }
   },
 
-  // Ajouter une nouvelle notification (pour les mises à jour en temps réel)
   addNotification: (notification) => {
     const notifications = [notification, ...get().notifications];
     const unreadCount = get().unreadCount + 1;

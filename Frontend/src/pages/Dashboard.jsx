@@ -152,17 +152,15 @@ const Dashboard = () => {
     return result;
   };
 
-  // Données statiques pour les autres sections (à remplacer par de vraies données si disponibles)
   const userStats = {
     competencesPubliees: mesCompetences.length,
-    competencesAchetees: 0, // À implémenter avec la logique d'échange
+    competencesAchetees: 0,
     creditsGagnes: user?.solde_credits || 0,
-    creditsDepenses: 0, // À implémenter avec la logique d'échange
-    totalEchanges: 0 // À implémenter avec la logique d'échange
+    creditsDepenses: 0, 
+    totalEchanges: 0
   };
 
   const competencesAchetees = [
-    // À remplacer par de vraies données
   ];
 
   return (
@@ -264,7 +262,7 @@ const Dashboard = () => {
         </div>
       </section>
 
-      {/* Modal pour le profil uniquement */}
+      {/* Modal pour le profil */}
       {showModal && modalType === 'profile' && (
         <ProfileModal
           user={user}
@@ -278,7 +276,6 @@ const Dashboard = () => {
   );
 };
 
-// Composant Vue d'ensemble
 const OverviewTab = ({ userStats, user, onEditProfile }) => (
   <div className="space-y-6">
     {/* Statistiques */}

@@ -83,7 +83,7 @@ function App() {
             </PrivateRoute>
           } />
           
-          {/* Route pour le profil de l'utilisateur courant */}
+          {/* Route pour le profil de user courant */}
           <Route path="/profile" element={
             <PrivateRoute>
               <Navigate to="/dashboard" />
@@ -91,7 +91,6 @@ function App() {
           } />
         </Routes>
         
-        {/* Container pour les toasts */}
         <ToastContainer
           position="top-right"
           autoClose={3000}

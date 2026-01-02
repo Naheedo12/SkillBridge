@@ -19,7 +19,7 @@ const AddCompetence = () => {
     disponibilite: true
   });
 
-  // Vérifier si c'est un admin qui vient de la page admin
+  // Vérifier si c'est un admin
   const isAdminRedirect = searchParams.get('redirect') === 'admin';
   const isAdmin = user?.role === 'Administrateur' || user?.role === 'admin';
 
@@ -48,7 +48,7 @@ const handleSubmit = async (e) => {
           state: { message: 'Compétence créée avec succès!' }
         });
       } else {
-        // Utilisateur normal : vers son dashboard avec l'onglet "Mes Compétences" actif
+        // Utilisateur normal : vers son dashboard avec l'onglet Mes Compétences actif
         console.log('🎉 Déclenchement de l\'événement competenceCreated');
         window.dispatchEvent(new CustomEvent('competenceCreated', { 
           detail: response.data 
@@ -153,8 +153,6 @@ const handleSubmit = async (e) => {
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent font-['Inter']"
                 />
               </div>
-
-              {/* Prix en crédits - Supprimé car fixe à 2 crédits */}
 
               {/* Catégorie et Niveau */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

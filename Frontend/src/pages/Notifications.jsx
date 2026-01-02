@@ -50,7 +50,6 @@ const Notifications = () => {
     }
   };
 
-  // Fonction pour obtenir l'icône selon le type de notification
   const getNotificationIcon = (type) => {
     switch (type) {
       case 'message':
@@ -109,7 +108,6 @@ const Notifications = () => {
     <div className="min-h-screen bg-gray-50">
       <Header />
 
-      {/* Hero Section avec gradient violet */}
       <section 
         className="py-16 px-4"
         style={{ 

@@ -6,7 +6,6 @@ const CategoriesSection = () => {
   const [categoriesStats, setCategoriesStats] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Configuration des catégories (icônes + couleurs)
   const categoriesConfig = {
     Programmation: { icon: "💻", bg: "bg-blue-100" },
     Design: { icon: "🎨", bg: "bg-orange-100" },

@@ -93,12 +93,11 @@ class AuthService {
     }
   }
 
-  /** Fonction utilitaire pour les délais */
+  /** Fonction pour les délais */
   delay(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
 
-  /** Connexion */
   async login(credentials) {
     const response = await this.request('/auth/login', 'POST', credentials);
 
@@ -109,7 +108,6 @@ class AuthService {
     return response;
   }
 
-  /** Inscription */
   async register(userData) {
     const response = await this.request('/auth/register', 'POST', userData);
 
@@ -120,7 +118,6 @@ class AuthService {
     return response;
   }
 
-  /** Déconnexion */
   async logout() {
     try {
       await this.request('/auth/logout', 'POST');

@@ -1,4 +1,3 @@
-// Test simple pour le service d'authentification
 describe('AuthService Tests', () => {
   test('validation email - email valide', () => {
     const isValidEmail = (email) => {

@@ -224,7 +224,6 @@ const handleSubmit = async (e) => {
             </div>
           </div>
 
-          {/* Description détaillée */}
           <div className="bg-white rounded-xl p-8 shadow-sm">
             <h2 className="text-2xl font-bold text-gray-900 font-['Inter'] mb-6">
               Description détaillée

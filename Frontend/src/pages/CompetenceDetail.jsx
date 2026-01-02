@@ -95,7 +95,7 @@ const CompetenceDetail = () => {
     return levelMap[niveau] || niveau || 'Non spécifié';
   };
 
-  // Loading state
+  // Loading 
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50">
@@ -138,7 +138,7 @@ const CompetenceDetail = () => {
     <div className="min-h-screen bg-gray-50">
       <Header />
       
-      {/* Hero Section avec gradient violet */}
+      {/* Hero Section*/}
       <section 
         className="py-16 px-4"
         style={{ 

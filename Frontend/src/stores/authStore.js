@@ -5,22 +5,18 @@ import authService from '../services/authService';
 const useAuthStore = create(
   persist(
     (set, get) => ({
-      // État
       user: null,
       error: null,
 
-      // Getter
       isAuthenticated: () => !!get().user,
       isAdmin: () => {
         const user = get().user;
         return user?.role === 'Administrateur' || user?.role === 'admin';
       },
 
-      // Actions pour gérer les erreurs
       setError: (error) => set({ error }),
       clearError: () => set({ error: null }),
 
-      // Fonction utilitaire pour gérer les erreurs de manière cohérente
       handleError: (error, defaultMessage = 'Une erreur est survenue') => {
         let message = defaultMessage;
         
@@ -34,7 +30,6 @@ const useAuthStore = create(
         return { success: false, message };
       },
 
-      // Connexion
       login: async (credentials) => {
         set({ error: null });
 
@@ -46,9 +41,6 @@ const useAuthStore = create(
           if (response.success) {
             let user = response.data.user;
             console.log('User from response:', user);
-            
-            // Garder le rôle tel qu'il vient du backend
-            // Ne pas normaliser pour garder la cohérence
             
             console.log('Setting user in store:', user);
             set({ user, error: null });
@@ -62,7 +54,6 @@ const useAuthStore = create(
         }
       },
 
-      // Inscription
       register: async (userData) => {
         set({ error: null });
 
@@ -72,7 +63,6 @@ const useAuthStore = create(
           if (response.success) {
             let user = response.data.user;
             
-            // Garder le rôle tel qu'il vient du backend
             set({ user, error: null });
             return { success: true };
           } else {
@@ -83,7 +73,6 @@ const useAuthStore = create(
         }
       },
 
-      // Déconnexion
       logout: async () => {
         try {
           await authService.logout();

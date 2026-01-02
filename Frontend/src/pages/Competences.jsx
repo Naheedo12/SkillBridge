@@ -68,12 +68,11 @@ const Competences = () => {
     return `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=9810fa&color=fff`;
   };
 
-  // Fonction pour obtenir l'image par défaut
   const getDefaultImage = () => {
     return "https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=400&h=300&fit=crop";
   };
 
-  // Fonction pour formater le niveau pour l'affichage
+  // Fonction pour formater le niveau pour l'aff
   const formatLevel = (niveau) => {
     const levelMap = {
       'debutant': 'Débutant',
@@ -300,7 +299,7 @@ const Competences = () => {
             </div>
           )}
 
-          {/* Pagination - Afficher seulement s'il y a des résultats et plusieurs pages */}
+          {/* Pagination */}
           {!loading && competences.length > 0 && totalPages > 1 && (
             <div className="flex justify-center mt-12">
               <nav className="flex items-center gap-2">

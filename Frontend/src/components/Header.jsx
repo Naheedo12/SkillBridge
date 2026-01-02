@@ -26,7 +26,7 @@ const Header = () => {
     navigate('/');
   };
 
-  // Fonction pour vérifier si l'utilisateur est admin - accepter les deux formats
+  // Fonction pour vérifier si l'utilisateur est admin/administrateur
   const isAdmin = () => {
     return user?.role === 'Administrateur' || user?.role === 'admin';
   };
@@ -41,7 +41,6 @@ const Header = () => {
             setUnreadCount(response.data.count);
           }
         } catch (error) {
-          // Ignorer les erreurs silencieusement
         }
       }
     };
@@ -126,7 +125,7 @@ const Header = () => {
           {/* Actions */}
           <div className="flex items-center space-x-3 mr-10">
 
-            {/* Crédits (statique) */}
+            {/* Crédits */}
             {!isAdmin() && (
               <div className="px-3 py-1 rounded-lg bg-purple-100">
                 <span className="text-sm font-semibold text-purple-700">
@@ -138,7 +137,7 @@ const Header = () => {
             {/* Icônes */}
             <NotificationIcon />
 
-            {/* Icône de messagerie - seulement pour les utilisateurs normaux */}
+            {/* Icône de messagerie - seulement pour les users */}
             {!isAdmin() && (
               <Link to="/chat" className="relative p-2 text-gray-500 hover:text-gray-700">
                 <MessageSquare className="h-5 w-5" />
@@ -150,7 +149,7 @@ const Header = () => {
               </Link>
             )}
 
-            {/* Icône de profil utilisateur avec avatar - seulement pour les utilisateurs normaux */}
+            {/* Icône de profil utilisateur avec avatar - seulement pour les users */}
             {!isAdmin() && (
               <Link 
                 to="/dashboard" 

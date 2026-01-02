@@ -2,7 +2,6 @@ import { create } from 'zustand';
 import competenceService from '../services/competenceService';
 
 const useCompetenceStore = create((set, get) => ({
-  // État
   competences: [],
   currentCompetence: null,
   loading: false,
@@ -20,7 +19,6 @@ const useCompetenceStore = create((set, get) => ({
   selectedCategory: 'Toutes catégories',
   selectedLevel: 'Tous niveaux',
   
-  // Actions de base
   setLoading: (loading) => set({ loading }),
   setError: (error) => set({ error }),
   clearError: () => set({ error: null }),

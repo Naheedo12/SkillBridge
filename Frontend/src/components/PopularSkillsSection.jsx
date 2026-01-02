@@ -65,7 +65,7 @@ const PopularSkillsSection = () => {
     return levelMap[niveau] || niveau || '—';
   };
 
-  // Skeleton loader
+  // loader
   if (loading) {
     return (
       <section className="py-20 px-4 bg-gray-50">

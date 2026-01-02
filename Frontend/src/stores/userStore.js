@@ -2,18 +2,15 @@ import { create } from 'zustand';
 import authService from '../services/authService';
 
 const useUserStore = create((set, get) => ({
-  // État
   users: [],
   currentViewedUser: null,
   loading: false,
   error: null,
 
-  // Actions pour gérer les erreurs
   setError: (error) => set({ error }),
   clearError: () => set({ error: null }),
   setLoading: (loading) => set({ loading }),
 
-  // Fonction utilitaire pour gérer les erreurs
   handleError: (error, defaultMessage = 'Une erreur est survenue') => {
     let message = defaultMessage;
     
@@ -140,7 +137,7 @@ const useUserStore = create((set, get) => ({
     }
   },
 
-  // Réinitialiser l'utilisateur actuellement visualisé
+  // Réinitialiser user
   clearCurrentUser: () => set({ currentViewedUser: null }),
 
   // Réinitialiser tout

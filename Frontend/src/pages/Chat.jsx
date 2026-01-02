@@ -145,7 +145,6 @@ const Chat = () => {
         setEchangeStatus(response.data);
       }
     } catch (error) {
-      // Pas d'échange en cours
     }
   };
 

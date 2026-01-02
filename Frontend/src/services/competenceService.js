@@ -63,7 +63,6 @@ const competenceService = {
     try {
       console.log('🔍 Appel API getMyCompetences...');
       
-      // Utiliser directement le fallback pour l'instant
       console.log('🔄 Utilisation du système de fallback...');
       const allCompetencesResponse = await authService.request('/competences?per_page=100', 'GET');
       console.log('📊 Toutes les compétences récupérées:', allCompetencesResponse);
@@ -76,7 +75,6 @@ const competenceService = {
         if (userResponse?.success && userResponse?.data) {
           console.log('🔍 Structure complète de userResponse.data:', userResponse.data);
           
-          // La structure correcte est data.user.id selon le contrôleur AuthController
           const currentUserId = userResponse.data.user?.id || userResponse.data.id;
           console.log('🔍 ID utilisateur actuel:', currentUserId, typeof currentUserId);
           
